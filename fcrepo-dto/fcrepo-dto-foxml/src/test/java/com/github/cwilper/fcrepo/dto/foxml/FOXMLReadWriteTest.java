@@ -230,6 +230,11 @@ public class FOXMLReadWriteTest {
     }
 
     @Test
+    public void dsvInlineNamespaceXML() throws IOException {
+        readCheck("dsvInlineNamespaceXML", new FOXMLReader(), false);
+    }
+
+    @Test
     public void dsvInlineRDF() throws IOException {
         Datastream ds = new Datastream("ds").controlGroup(
                 ControlGroup.INLINE_XML);

@@ -1,9 +1,7 @@
 
 package org.fcrepo.dto.core;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -14,7 +12,15 @@ import java.util.TreeSet;
  */
 public class Datastream extends FedoraDTO {
 
-    private final SortedSet<DatastreamVersion> versions = new TreeSet<>(new DSVComparator());
+    private final SortedSet<DatastreamVersion> versions = new TreeSet<>((a, b) -> {
+        final LocalDateTime aDate = a.createdDate();
+        final LocalDateTime bDate = b.createdDate();
+        return aDate == null
+                        ? bDate == null
+                                        ? b.id().compareTo(a.id()) : -1
+                        : bDate == null
+                                        ? 1 : bDate.compareTo(aDate);
+    });
 
     private final String id;
 
@@ -176,22 +182,4 @@ public class Datastream extends FedoraDTO {
     Object[] getEqArray() {
         return new Object[] {id, state, controlGroup, versionable, versions};
     }
-
-    private static class DSVComparator implements Comparator<DatastreamVersion>, Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public int compare(final DatastreamVersion a, final DatastreamVersion b) {
-            final LocalDateTime aDate = a.createdDate();
-            final LocalDateTime bDate = b.createdDate();
-            if (aDate == null) {
-                if (bDate == null) { return b.id().compareTo(a.id()); }
-                return -1;
-            }
-            if (bDate == null) { return 1; }
-            return bDate.compareTo(aDate);
-        }
-    }
-
 }

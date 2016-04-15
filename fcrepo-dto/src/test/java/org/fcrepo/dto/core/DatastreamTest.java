@@ -1,3 +1,4 @@
+
 package org.fcrepo.dto.core;
 
 import org.fcrepo.dto.core.ControlGroup;
@@ -17,25 +18,19 @@ public class DatastreamTest extends FedoraDTOTest {
 
     @Override
     Object[] getEqualInstances() {
-        return new Object[] {
-                new Datastream("a"),
-                new Datastream("a"),
-                new Datastream("a").controlGroup(ControlGroup.MANAGED),
-                new Datastream("a").controlGroup(ControlGroup.MANAGED)
-        };
+        return new Object[] {new Datastream("a"), new Datastream("a"),
+                        new Datastream("a").controlGroup(ControlGroup.MANAGED),
+                        new Datastream("a").controlGroup(ControlGroup.MANAGED)};
     }
 
     @Override
     Object[] getNonEqualInstances() {
-        return new Object[] {
-                new Datastream("a"),
-                new Datastream("b")
-        };
+        return new Object[] {new Datastream("a"), new Datastream("b")};
     }
 
     @Test
     public void copy() {
-        Datastream o1 = new Datastream("a");
+        final Datastream o1 = new Datastream("a");
         o1.addVersion(new Date(0));
         Datastream o2 = o1.copy();
         Assert.assertEquals(o1, o2);
@@ -50,8 +45,8 @@ public class DatastreamTest extends FedoraDTOTest {
 
     @Test
     public void copyWithArg() {
-        Datastream o1 = new Datastream("a");
-        Datastream o2 = o1.copy("b");
+        final Datastream o1 = new Datastream("a");
+        final Datastream o2 = o1.copy("b");
         Assert.assertFalse(o1.equals(o2));
     }
 
@@ -66,24 +61,27 @@ public class DatastreamTest extends FedoraDTOTest {
         Assert.assertEquals("a", new Datastream("a ").id());
     }
 
-    @Test (expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
+    @SuppressWarnings("unused")
     public void idFieldNull() {
         new Datastream(null);
     }
 
-    @Test (expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
+    @SuppressWarnings("unused")
     public void idFieldEmpty() {
         new Datastream("");
     }
 
-    @Test (expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
+    @SuppressWarnings("unused")
     public void idFieldSpace() {
         new Datastream(" ");
     }
 
     @Test
     public void stateField() {
-        Datastream ds = new Datastream("a");
+        final Datastream ds = new Datastream("a");
         Assert.assertNull(ds.state());
         ds.state(State.ACTIVE);
         Assert.assertEquals(State.ACTIVE, ds.state());
@@ -91,16 +89,15 @@ public class DatastreamTest extends FedoraDTOTest {
 
     @Test
     public void controlGroupField() {
-        Datastream ds = new Datastream("a");
+        final Datastream ds = new Datastream("a");
         Assert.assertNull(ds.controlGroup());
         ds.controlGroup(ControlGroup.MANAGED);
-        Assert.assertEquals(ControlGroup.MANAGED,
-                ds.controlGroup());
+        Assert.assertEquals(ControlGroup.MANAGED, ds.controlGroup());
     }
 
     @Test
     public void versionableField() {
-        Datastream ds = new Datastream("a");
+        final Datastream ds = new Datastream("a");
         Assert.assertNull(ds.versionable());
         ds.versionable(true);
         Assert.assertEquals(true, ds.versionable());
@@ -108,10 +105,10 @@ public class DatastreamTest extends FedoraDTOTest {
 
     @Test
     public void addVersion() {
-        Datastream ds = new Datastream("a");
+        final Datastream ds = new Datastream("a");
         // starts empty
         Assert.assertEquals(0, ds.versions().size());
-        DatastreamVersion dsv = ds.addVersion(null);
+        final DatastreamVersion dsv = ds.addVersion(null);
         Assert.assertNotNull(dsv);
         // now has one version
         Assert.assertEquals(1, ds.versions().size());
@@ -121,28 +118,28 @@ public class DatastreamTest extends FedoraDTOTest {
         ds.versions().add(new DatastreamVersion("a.2", null));
         // finally add another with a generated id
         // and ensure it has the expected id
-        DatastreamVersion dsvLast = ds.addVersion(null);
+        final DatastreamVersion dsvLast = ds.addVersion(null);
         Assert.assertEquals("a.3", dsvLast.id());
     }
 
     @Test
     public void addVersionViaSet() {
-        Datastream ds = new Datastream("a");
-        DatastreamVersion dsv = new DatastreamVersion("a.0", null);
+        final Datastream ds = new Datastream("a");
+        final DatastreamVersion dsv = new DatastreamVersion("a.0", null);
         ds.versions().add(dsv);
         // now has one version
         Assert.assertEquals(1, ds.versions().size());
         // ..and it's this one
         Assert.assertEquals(dsv, ds.versions().first());
     }
-    
+
     @Test
     public void datastreamVersionOrdering() {
-        Datastream ds = new Datastream("a");
-        DatastreamVersion dsv1 = new DatastreamVersion("a.1", null);
-        DatastreamVersion dsv2 = new DatastreamVersion("a.2", null);
-        DatastreamVersion dsv3 = new DatastreamVersion("a.3", new Date(2));
-        DatastreamVersion dsv4 = new DatastreamVersion("a.4", new Date(1));
+        final Datastream ds = new Datastream("a");
+        final DatastreamVersion dsv1 = new DatastreamVersion("a.1", null);
+        final DatastreamVersion dsv2 = new DatastreamVersion("a.2", null);
+        final DatastreamVersion dsv3 = new DatastreamVersion("a.3", new Date(2));
+        final DatastreamVersion dsv4 = new DatastreamVersion("a.4", new Date(1));
         ds.versions().add(dsv4);
         ds.versions().add(dsv2);
         ds.versions().add(dsv1);
@@ -150,7 +147,7 @@ public class DatastreamTest extends FedoraDTOTest {
         // should be in this order: a.2, a.1, a.3, a.4
         Assert.assertEquals(dsv2, ds.versions().first());
         Assert.assertEquals(dsv4, ds.versions().last());
-        SortedSet<DatastreamVersion> subset = ds.versions().subSet(dsv1, dsv4);
+        final SortedSet<DatastreamVersion> subset = ds.versions().subSet(dsv1, dsv4);
         Assert.assertEquals(dsv1, subset.first());
         Assert.assertEquals(dsv3, subset.last());
     }

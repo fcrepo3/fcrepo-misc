@@ -167,7 +167,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvId() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null);
         obj.putDatastream(ds);
         writeThenReadCheck("dsvId");
@@ -175,7 +175,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvCreatedDate() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(new Date(0));
         obj.putDatastream(ds);
         writeThenReadCheck("dsvCreatedDate");
@@ -183,7 +183,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvLabel() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null).label("dsvLabel");
         obj.putDatastream(ds);
         writeThenReadCheck("dsvLabel");
@@ -191,7 +191,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvMimeType() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null).mimeType("dsvMimeType");
         obj.putDatastream(ds);
         writeThenReadCheck("dsvMimeType");
@@ -199,7 +199,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvFormatURI() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null).formatURI(URI.create("urn:dsvFormatURI"));
         obj.putDatastream(ds);
         writeThenReadCheck("dsvFormatURI");
@@ -207,7 +207,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvSize() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null).size(0L);
         obj.putDatastream(ds);
         writeThenReadCheck("dsvSize");
@@ -215,7 +215,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvContentDigest() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null).contentDigest(new ContentDigest().type("someType").
                 hexValue("someHexValue"));
         obj.putDatastream(ds);
@@ -224,7 +224,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvInlineXML() throws IOException {
-        Datastream ds = new Datastream("ds").controlGroup(
+        final Datastream ds = new Datastream("ds").controlGroup(
                 ControlGroup.INLINE_XML);
         ds.addVersion(null).inlineXML(new InlineXML("<doc></doc>"));
         obj.putDatastream(ds);
@@ -233,9 +233,9 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvInlineRDF() throws IOException {
-        Datastream ds = new Datastream("ds").controlGroup(
+        final Datastream ds = new Datastream("ds").controlGroup(
                 ControlGroup.INLINE_XML);
-        String xml = IOUtils.toString(getClass().getClassLoader()
+        final String xml = IOUtils.toString(getClass().getClassLoader()
                 .getResourceAsStream("inlineRDFInput.xml"));
         ds.addVersion(null).inlineXML(new InlineXML(xml));
         obj.putDatastream(ds);
@@ -247,20 +247,18 @@ public class FOXMLReadWriteTest {
         final String content = "A word starting with c, followed by o, "
                 + "followed by n, followed by t, followed by e, "
                 + "followed by n, and ending with t.";
-        File tempFile = File.createTempFile("fcrepo-dto-test", null);
-        FileOutputStream sink = null;
-        try {
+        final File tempFile = File.createTempFile("fcrepo-dto-test", null);
+        try (final FileOutputStream sink = new FileOutputStream(tempFile)) {
             //
             // Write test
             //
-            sink = new FileOutputStream(tempFile);
-            IOUtils.copy(new StringReader(content),
-                    new FileOutputStream(tempFile));
-            IOUtils.closeQuietly(sink);
-            Datastream ds = new Datastream("ds").controlGroup(
+            try (FileOutputStream tempStream = new FileOutputStream(tempFile)) {
+                IOUtils.copy(new StringReader(content), tempStream);
+            }
+            final Datastream ds = new Datastream("ds").controlGroup(
                     ControlGroup.MANAGED);
             ds.addVersion(null).contentLocation(tempFile.toURI());
-            DatastreamVersion origDSV = ds.versions().first();
+            final DatastreamVersion origDSV = ds.versions().first();
             obj.putDatastream(ds);
             // serialize obj to FOXML, requesting that the managed content is
             // embedded as binaryContent (base64), and ensure the resulting
@@ -269,21 +267,21 @@ public class FOXMLReadWriteTest {
             //
             // Read test
             //
-            FOXMLReader reader = new FOXMLReader();
-            FedoraObject result = readCheck("dsvBinaryContent", reader, false);
-            DatastreamVersion resultDSV = result.datastreams().get("ds").versions().first();
+            final FOXMLReader reader = new FOXMLReader();
+            final FedoraObject result = readCheck("dsvBinaryContent", reader, false);
+            final DatastreamVersion resultDSV = result.datastreams().get("ds").versions().first();
             // should have new file: contentLocation
-            URI resultLocation = resultDSV.contentLocation();
+            final URI resultLocation = resultDSV.contentLocation();
             Assert.assertNotNull(resultLocation);
             Assert.assertFalse(resultLocation.equals(origDSV.contentLocation()));
             Assert.assertEquals(resultLocation.getScheme(), "file");
             // ...whose content matches that of the original
-            File resultFile = new File(resultLocation.getRawSchemeSpecificPart());
+            final File resultFile = new File(resultLocation.getRawSchemeSpecificPart());
             Assert.assertTrue(resultFile.exists());
-            FileInputStream resultIn = new FileInputStream(resultFile);
-            String resultContent = IOUtils.toString(resultIn, "UTF-8");
-            IOUtils.closeQuietly(resultIn);
-            Assert.assertEquals(resultContent, content);
+            try (final FileInputStream resultIn = new FileInputStream(resultFile)) {
+                final String resultContent = IOUtils.toString(resultIn, "UTF-8");
+                Assert.assertEquals(resultContent, content);
+            }
             // other than the contentLocation, the newly-read object should
             // be equivalent to the original one
             resultDSV.contentLocation(origDSV.contentLocation());
@@ -292,14 +290,13 @@ public class FOXMLReadWriteTest {
             reader.close();
             Assert.assertFalse(resultFile.exists());
         } finally {
-            IOUtils.closeQuietly(sink);
             tempFile.delete();
         }
     }
 
     @Test
     public void dsvContentLocation() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null).contentLocation(URI.create("http://example.org/"));
         obj.putDatastream(ds);
         writeThenReadCheck("dsvContentLocation");
@@ -307,7 +304,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvContentLocationInternal() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null).contentLocation(
                 URI.create("internal:test:obj+ds+ds.0"));
         obj.putDatastream(ds);
@@ -316,7 +313,7 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvAltIds() {
-        Datastream ds = new Datastream("ds");
+        final Datastream ds = new Datastream("ds");
         ds.addVersion(null).altIds().add(URI.create("urn:a"));
         obj.putDatastream(ds);
         writeThenReadCheck("dsvAltIds");
@@ -324,8 +321,8 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvAltIdsMulti() {
-        Datastream ds = new Datastream("ds");
-        DatastreamVersion dsv = ds.addVersion(null);
+        final Datastream ds = new Datastream("ds");
+        final DatastreamVersion dsv = ds.addVersion(null);
         dsv.altIds().add(URI.create("urn:c"));
         dsv.altIds().add(URI.create("urn:a"));
         dsv.altIds().add(URI.create("urn:b"));
@@ -335,11 +332,11 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsvMulti() {
-        Datastream ds = new Datastream("ds");
-        DatastreamVersion dsv1 = new DatastreamVersion("ds.1", null);
-        DatastreamVersion dsv2 = new DatastreamVersion("ds.2", null);
-        DatastreamVersion dsv3 = new DatastreamVersion("ds.3", new Date(2));
-        DatastreamVersion dsv4 = new DatastreamVersion("ds.4", new Date(1));
+        final Datastream ds = new Datastream("ds");
+        final DatastreamVersion dsv1 = new DatastreamVersion("ds.1", null);
+        final DatastreamVersion dsv2 = new DatastreamVersion("ds.2", null);
+        final DatastreamVersion dsv3 = new DatastreamVersion("ds.3", new Date(2));
+        final DatastreamVersion dsv4 = new DatastreamVersion("ds.4", new Date(1));
         ds.versions().add(dsv4);
         ds.versions().add(dsv2);
         ds.versions().add(dsv1);
@@ -349,65 +346,65 @@ public class FOXMLReadWriteTest {
         writeThenReadCheck("dsvMulti");
     }
 
-    private void writeThenReadCheck(String testName) {
+    private void writeThenReadCheck(final String testName) {
         writeCheck(testName, null);
         readCheck(testName, new FOXMLReader(), true);
     }
 
-    private void writeCheck(String testName, Set<String> embedIds) {
-        String filename = "foxml/" + testName + ".xml";
+    private void writeCheck(final String testName, final Set<String> embedIds) {
+        final String filename = "foxml/" + testName + ".xml";
         try {
-            byte[] actualBytes = getFOXML(embedIds).getBytes("UTF-8");
-            String actualXML = new String(actualBytes, "UTF-8");
+            final byte[] actualBytes = getFOXML(embedIds).getBytes("UTF-8");
+            final String actualXML = new String(actualBytes, "UTF-8");
             if (getClass().getClassLoader().getResource(filename) == null) {
                 if (testResources != null && testResources.isDirectory()) {
-                    File testFile = new File(testResources, filename);
+                    final File testFile = new File(testResources, filename);
                     testFile.getParentFile().mkdirs();
-                    OutputStream out = new FileOutputStream(testFile);
-                    IOUtils.copy(new StringReader(actualXML), out);
-                    IOUtils.closeQuietly(out);
+                    try (OutputStream out = new FileOutputStream(testFile)) {
+                        IOUtils.copy(new StringReader(actualXML), out);
+                    }
                     System.out.println("Generated test resource: " + filename);
                 } else {
                     Assert.fail("Test resource not found: " + filename);
                 }
             } else {
-                InputStream expectedStream = getClass().getClassLoader()
+                final InputStream expectedStream = getClass().getClassLoader()
                         .getResourceAsStream(filename);
-                byte[] expectedBytes = XMLUtil.prettyPrint(
+                final byte[] expectedBytes = XMLUtil.prettyPrint(
                         IOUtils.toByteArray(expectedStream), false);
-                String expectedXML = new String(expectedBytes, "UTF-8");
+                final String expectedXML = new String(expectedBytes, "UTF-8");
                 Assert.assertEquals(expectedXML, actualXML);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private FedoraObject readCheck(String testName, FOXMLReader reader,
-                                   boolean check) {
-        String filename = "foxml/" + testName + ".xml";
+    private FedoraObject readCheck(final String testName, final FOXMLReader reader,
+                                   final boolean check) {
+        final String filename = "foxml/" + testName + ".xml";
         try {
-            InputStream in = getClass().getClassLoader()
+            final InputStream in = getClass().getClassLoader()
                     .getResourceAsStream(filename);
-            FedoraObject result = reader.readObject(in);
+            final FedoraObject result = reader.readObject(in);
             if (check) {
                 Assert.assertEquals(obj, result);
             }
             return result;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String getFOXML(Set<String> embedIds) {
+    private String getFOXML(final Set<String> embedIds) {
         try {
-            FOXMLWriter writer = new FOXMLWriter();
+            final FOXMLWriter writer = new FOXMLWriter();
             writer.setManagedDatastreamsToEmbed(embedIds);
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
             writer.writeObject(obj, out);
-            byte[] pretty = XMLUtil.prettyPrint(out.toByteArray(), false);
+            final byte[] pretty = XMLUtil.prettyPrint(out.toByteArray(), false);
             return new String(pretty, "UTF-8");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }

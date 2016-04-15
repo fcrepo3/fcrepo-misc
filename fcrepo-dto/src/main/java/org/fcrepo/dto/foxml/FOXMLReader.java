@@ -1,3 +1,4 @@
+
 package org.fcrepo.dto.foxml;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
@@ -40,21 +41,20 @@ import java.util.Set;
  */
 public class FOXMLReader extends ContentHandlingDTOReader {
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            FOXMLReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(FOXMLReader.class);
 
     private FedoraObject obj;
+
     private XMLStreamReader r;
 
     /**
      * Creates an instance.
      */
-    public FOXMLReader() {
-    }
+    public FOXMLReader() {}
 
     @Override
     public DTOReader getInstance() {
-        FOXMLReader reader = new FOXMLReader();
+        final FOXMLReader reader = new FOXMLReader();
         if (contentHandler != defaultContentHandler) {
             reader.setContentHandler(contentHandler);
         }
@@ -62,14 +62,14 @@ public class FOXMLReader extends ContentHandlingDTOReader {
     }
 
     @Override
-    public FedoraObject readObject(InputStream source) throws IOException {
+    public FedoraObject readObject(final InputStream source) throws IOException {
         obj = new FedoraObject();
-        XMLInputFactory factory = XMLInputFactory.newInstance();
+        final XMLInputFactory factory = XMLInputFactory.newInstance();
         try {
             r = factory.createXMLStreamReader(source, Constants.CHAR_ENCODING);
             readObject();
             return obj;
-        } catch (XMLStreamException e) {
+        } catch (final XMLStreamException e) {
             throw new IOException(e);
         } finally {
             XMLUtil.closeQuietly(r);
@@ -81,8 +81,8 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         if (moveToStart(Constants.digitalObject, null)) {
             obj.pid(readAttribute(Constants.PID));
             readObjectProperties();
-            while (r.getEventType() == XMLStreamConstants.START_ELEMENT
-                    && r.getLocalName().equals(Constants.datastream)) {
+            while (r.getEventType() == XMLStreamConstants.START_ELEMENT &&
+                            r.getLocalName().equals(Constants.datastream)) {
                 readDatastream();
             }
         }
@@ -90,8 +90,8 @@ public class FOXMLReader extends ContentHandlingDTOReader {
 
     private void readObjectProperties() throws XMLStreamException {
         while (moveToStart(Constants.property, Constants.datastream)) {
-            String name = readAttribute(Constants.NAME);
-            String value = readAttribute(Constants.VALUE);
+            final String name = readAttribute(Constants.NAME);
+            final String value = readAttribute(Constants.VALUE);
             if (name != null) {
                 if (name.equals(Constants.STATE_URI)) {
                     obj.state(parseState(value, "object"));
@@ -103,28 +103,23 @@ public class FOXMLReader extends ContentHandlingDTOReader {
                     obj.createdDate(parseDate(value, "object created"));
 
                 } else if (name.equals(Constants.LASTMODIFIEDDATE_URI)) {
-                    obj.lastModifiedDate(parseDate(value,
-                            "object last modified"));
+                    obj.lastModifiedDate(parseDate(value, "object last modified"));
                 } else {
-                    logger.warn("Ignoring unrecognized object property name: "
-                            + name);
+                    logger.warn("Ignoring unrecognized object property name: " + name);
                 }
             }
         }
     }
 
     private void readDatastream() throws IOException, XMLStreamException {
-        String id = readAttribute(Constants.ID);
+        final String id = readAttribute(Constants.ID);
         if (id != null) {
-            Datastream ds = new Datastream(id);
+            final Datastream ds = new Datastream(id);
             obj.putDatastream(ds);
             ds.state(parseState(readAttribute(Constants.STATE), "datastream"));
-            ds.controlGroup(parseControlGroup(readAttribute(
-                    Constants.CONTROL_GROUP)));
-            ds.versionable(parseVersionable(readAttribute(
-                    Constants.VERSIONABLE)));
-            while (moveToStart(Constants.datastreamVersion,
-                    Constants.datastream)) {
+            ds.controlGroup(parseControlGroup(readAttribute(Constants.CONTROL_GROUP)));
+            ds.versionable(parseVersionable(readAttribute(Constants.VERSIONABLE)));
+            while (moveToStart(Constants.datastreamVersion, Constants.datastream)) {
                 readDatastreamVersion(ds);
             }
         } else {
@@ -132,26 +127,21 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         }
     }
 
-    private void readDatastreamVersion(Datastream ds)
-            throws IOException, XMLStreamException {
-        String id = readAttribute(Constants.ID);
+    private void readDatastreamVersion(final Datastream ds) throws IOException, XMLStreamException {
+        final String id = readAttribute(Constants.ID);
         if (id != null) {
-            Date created = parseDate(readAttribute(Constants.CREATED),
-                    "datastream created");
-            DatastreamVersion dsv = new DatastreamVersion(id, created);
+            final Date created = parseDate(readAttribute(Constants.CREATED), "datastream created");
+            final DatastreamVersion dsv = new DatastreamVersion(id, created);
             ds.versions().add(dsv);
             dsv.altIds().addAll(parseAltIds(readAttribute(Constants.ALT_IDS)));
             dsv.label(readAttribute(Constants.LABEL));
             dsv.mimeType(readAttribute(Constants.MIMETYPE));
-            dsv.formatURI(parseURI(readAttribute(Constants.FORMAT_URI),
-                    "datastream format uri"));
-            dsv.size(parseLong(readAttribute(Constants.SIZE),
-                    "datastream size"));
+            dsv.formatURI(parseURI(readAttribute(Constants.FORMAT_URI), "datastream format uri"));
+            dsv.size(parseLong(readAttribute(Constants.SIZE), "datastream size"));
             if (r.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 if (r.getLocalName().equals(Constants.contentDigest)) {
                     readContentDigest(dsv);
-                    if (r.nextTag() == XMLStreamConstants.END_ELEMENT) {
-                        return; // end of datastreamVersion
+                    if (r.nextTag() == XMLStreamConstants.END_ELEMENT) { return; // end of datastreamVersion
                     }
                 }
                 if (r.getLocalName().equals(Constants.xmlContent)) {
@@ -167,18 +157,15 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         }
     }
 
-    private void readContentLocation(DatastreamVersion dsv)
-            throws XMLStreamException {
-        String type = readAttribute(Constants.TYPE);
-        URI ref = parseURI(readAttribute(Constants.REF), "contentLocation ref");
+    private void readContentLocation(final DatastreamVersion dsv) {
+        final String type = readAttribute(Constants.TYPE);
+        final URI ref = parseURI(readAttribute(Constants.REF), "contentLocation ref");
         if (ref != null) {
             if (Constants.INTERNALREF_TYPE.equals(type)) {
                 try {
-                    dsv.contentLocation(new URI(Constants.INTERNALREF_SCHEME
-                            + ":" + ref));
-                } catch (URISyntaxException e) {
-                    logger.warn("Ignoring malformed contentLocation "
-                            + "internal ref: " + ref);
+                    dsv.contentLocation(new URI(Constants.INTERNALREF_SCHEME + ":" + ref));
+                } catch (final URISyntaxException e) {
+                    logger.warn("Ignoring malformed contentLocation " + "internal ref: " + ref);
                 }
             } else {
                 dsv.contentLocation(ref);
@@ -186,149 +173,131 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         }
     }
 
-    private void readBinaryContent(Datastream ds, DatastreamVersion dsv)
-            throws IOException, XMLStreamException {
-        OutputStream sink = contentHandler.handleContent(obj, ds, dsv);
-        if (sink == null) return; // handler opted out
-        OutputStream out = null;
-        try {
-            out = new Base64OutputStream(sink, false);
+    private void readBinaryContent(final Datastream ds, final DatastreamVersion dsv)
+                    throws IOException, XMLStreamException {
+        try (final OutputStream sink = contentHandler.handleContent(obj, ds, dsv);
+                        final OutputStream out = new Base64OutputStream(sink, false)) {
+            if (sink == null) return; // handler opted out
             while (r.next() != XMLStreamConstants.END_ELEMENT) {
                 if (r.isCharacters()) {
                     out.write(r.getText().getBytes(Constants.CHAR_ENCODING));
                 }
             }
             out.flush();
-        } finally {
-            IOUtils.closeQuietly(out);
-            IOUtils.closeQuietly(sink);
         }
     }
 
-    private void readXMLContent(DatastreamVersion dsv)
-            throws IOException, XMLStreamException {
+    private void readXMLContent(final DatastreamVersion dsv) throws IOException, XMLStreamException {
         while (r.next() != XMLStreamConstants.START_ELEMENT) {
-            if (r.getEventType() == XMLStreamConstants.END_ELEMENT) {
-                return; // xmlContent element is empty
+            if (r.getEventType() == XMLStreamConstants.END_ELEMENT) { return; // xmlContent element is empty
             }
         }
-        ByteArrayOutputStream sink = new ByteArrayOutputStream();
+        final ByteArrayOutputStream sink = new ByteArrayOutputStream();
         try {
             XMLUtil.copy(r, sink);
             dsv.inlineXML(new InlineXML(sink.toByteArray()));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IOException("Error parsing foxml:xmlContent", e);
         }
     }
 
-    private void readContentDigest(DatastreamVersion dsv)
-            throws XMLStreamException {
-        String type = readAttribute(Constants.TYPE);
-        String digest = readAttribute(Constants.DIGEST);
+    private void readContentDigest(final DatastreamVersion dsv) throws XMLStreamException {
+        final String type = readAttribute(Constants.TYPE);
+        final String digest = readAttribute(Constants.DIGEST);
         if (type != null || digest != null) {
             dsv.contentDigest(new ContentDigest().type(type).hexValue(digest));
         }
         r.nextTag(); // consume closing contentDigest tag
     }
 
-    private boolean moveToStart(String localName,
-                                String stopAtLocalName)
-            throws XMLStreamException {
+    private boolean moveToStart(final String localName, final String stopAtLocalName) throws XMLStreamException {
         while (r.hasNext()) {
             if (r.next() == XMLStreamConstants.START_ELEMENT) {
                 if (r.getLocalName().equals(localName)) {
                     return true;
-                } else if (r.getLocalName().equals(stopAtLocalName)) {
-                    return false;
-                }
+                } else if (r.getLocalName().equals(stopAtLocalName)) { return false; }
             }
         }
         return false;
     }
 
-    private String readAttribute(String localName) throws XMLStreamException {
-        String value = r.getAttributeValue(null, localName);
-        if (value != null && value.trim().length() > 0) {
-            return value.trim();
-        } else {
-            return null;
-        }
+    private String readAttribute(final String localName) {
+        final String value = r.getAttributeValue(null, localName);
+        if (value != null && value.trim().length() > 0) { return value.trim(); }
+        return null;
     }
 
-    private static Date parseDate(String value, String kind) {
+    private static Date parseDate(final String value, final String kind) {
         if (value == null) return null;
-        Date date = DateUtil.toDate(value);
+        final Date date = DateUtil.toDate(value);
         if (date == null) {
             logger.warn("Ignoring malformed " + kind + " date value: " + value);
         }
         return date;
     }
 
-    private static State parseState(String value, String kind) {
+    private static State parseState(final String value, final String kind) {
         if (value == null) return null;
         try {
             return State.forShortName(value);
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             try {
                 return State.forLongName(value);
-            } catch (IllegalArgumentException e2) {
-                logger.warn("Ignoring unrecognized " + kind + " state value: "
-                        + value);
+            } catch (final IllegalArgumentException e2) {
+                logger.warn("Ignoring unrecognized " + kind + " state value: " + value);
                 return null;
             }
         }
     }
 
-    private static ControlGroup parseControlGroup(String value) {
+    private static ControlGroup parseControlGroup(final String value) {
         if (value == null) return null;
         try {
             return ControlGroup.forShortName(value);
-        } catch (IllegalArgumentException e) {
-            logger.warn("Ignoring unrecognized datastream control group value: "
-                    + value);
+        } catch (final IllegalArgumentException e) {
+            logger.warn("Ignoring unrecognized datastream control group value: " + value);
             return null;
         }
     }
 
-    private static Boolean parseVersionable(String value) {
+    private static Boolean parseVersionable(final String value) {
         if (value == null) return null;
         if (value.equalsIgnoreCase("true") || value.equals("1")) {
             return true;
-            
+
         } else if (value.equalsIgnoreCase("false") || value.equals("0")) {
             return false;
         } else {
-            logger.warn("Ignoring unrecognized datastream versionable value: "
-                    + value);
+            logger.warn("Ignoring unrecognized datastream versionable value: " + value);
             return null;
         }
     }
 
-    private static Long parseLong(String value, String kind) {
+    private static Long parseLong(final String value, final String kind) {
         if (value == null) return null;
         try {
             return Long.parseLong(value);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             logger.warn("Ignoring invalid " + kind + " value: " + value);
             return null;
         }
     }
 
-    private static URI parseURI(String value, String kind) {
+    private static URI parseURI(final String value, final String kind) {
         if (value == null) return null;
         try {
             return new URI(value);
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             logger.warn("Ignoring malformed " + kind + " value:");
             return null;
         }
     }
 
-    private static Set<URI> parseAltIds(String value) {
-        Set<URI> set = new HashSet<URI>();
+    private static Set<URI> parseAltIds(final String value) {
+        final Set<URI> set = new HashSet<>();
         if (value != null) {
-            for (String uriString: value.split("\\s+")) {
-                URI uri = parseURI(uriString, "datastream altId");
+            for (final String uriString : value.split("\\s+")) {
+                final URI uri = parseURI(uriString, "datastream altId");
                 if (uri != null) set.add(uri);
             }
         }

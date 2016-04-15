@@ -14,7 +14,7 @@ import org.fcrepo.dto.core.io.DateUtil;
  */
 public class DatastreamVersion extends FedoraDTO {
 
-    private final SortedSet<URI> altIds = new TreeSet<URI>();
+    private final SortedSet<URI> altIds = new TreeSet<>();
 
     private final String id;
     private final Date createdDate;

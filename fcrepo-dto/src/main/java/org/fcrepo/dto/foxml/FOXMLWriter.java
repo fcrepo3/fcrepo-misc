@@ -34,7 +34,7 @@ import org.fcrepo.dto.core.io.XMLUtil;
  */
 public class FOXMLWriter extends ContentResolvingDTOWriter {
 
-    private Set<String> managedDatastreamsToEmbed = new HashSet<String>();
+    private Set<String> managedDatastreamsToEmbed = new HashSet<>();
 
     private FedoraObject obj;
     private OutputStream sink;
@@ -55,7 +55,7 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
             writer.setContentResolver(contentResolver);
         }
         writer.setManagedDatastreamsToEmbed(
-                new HashSet<String>(managedDatastreamsToEmbed));
+                new HashSet<>(managedDatastreamsToEmbed));
         return writer;
     }
 

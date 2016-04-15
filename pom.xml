@@ -19,8 +19,6 @@
 
   <modules>
     <module>fcrepo-dto</module>
-    <module>fcrepo-httpclient</module>
-    <module>fcrepo-riclient</module>
   </modules>
 
   <organization>                                                                    

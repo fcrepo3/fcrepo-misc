@@ -8,16 +8,56 @@
   </parent>
 
   <artifactId>fcrepo-dto</artifactId>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
   <name>Fedora DTO Libraries</name>
   <description>
     Data Transfer Object Libraries for Fedora Commons Repositories
   </description>
   <url>http://cwilper.github.com/fcrepo-misc/fcrepo-dto/</url>
 
-  <modules>
-    <module>fcrepo-dto-core</module>
-    <module>fcrepo-dto-foxml</module>
-  </modules>
+  <dependencies>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>net.java.dev.stax-utils</groupId>
+      <artifactId>stax-utils</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>1.7.9</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.santuario</groupId>
+      <artifactId>xmlsec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+  </dependencies>
 
 </project>

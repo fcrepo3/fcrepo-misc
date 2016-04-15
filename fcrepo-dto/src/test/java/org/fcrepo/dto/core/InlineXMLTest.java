@@ -19,7 +19,7 @@ public class InlineXMLTest extends FedoraDTOTest {
                     new InlineXML("<doc/>"),
                     new InlineXML("<doc></doc>")
             };
-        } catch (IOException wontHappen) {
+        } catch (final IOException wontHappen) {
             throw new RuntimeException(wontHappen);
         }
     }
@@ -31,27 +31,31 @@ public class InlineXMLTest extends FedoraDTOTest {
                     new InlineXML("<doc/>"),
                     new InlineXML("<doctor/>")
             };
-        } catch (IOException wontHappen) {
+        } catch (final IOException wontHappen) {
             throw new RuntimeException(wontHappen);
         }
     }
 
     @Test (expected=IOException.class)
+    @SuppressWarnings("unused")
     public void emptyString() throws IOException {
         new InlineXML("");
     }
 
     @Test (expected=IOException.class)
+    @SuppressWarnings("unused")
     public void emptyBytes() throws IOException {
         new InlineXML(new byte[0]);
     }
 
     @Test (expected=IOException.class)
+    @SuppressWarnings("unused")
     public void malformedString() throws IOException {
         new InlineXML("<nonClosingElement>");
     }
 
     @Test (expected=IOException.class)
+    @SuppressWarnings("unused")
     public void malformedBytes() throws IOException {
         new InlineXML(Util.getBytes("<nonClosingElement>"));
     }
@@ -59,8 +63,8 @@ public class InlineXMLTest extends FedoraDTOTest {
     @Test
     public void canonicalize() throws IOException {
         InlineXML xml;
-        String expected = "<a b=\"c\"></a>";
-        byte[] expectedBytes = Util.getBytes(expected);
+        final String expected = "<a b=\"c\"></a>";
+        final byte[] expectedBytes = Util.getBytes(expected);
 
         // empty elements should be expanded
         xml = new InlineXML("<a b=\"c\"/>");
@@ -78,8 +82,8 @@ public class InlineXMLTest extends FedoraDTOTest {
     @Test
     public void normalize() throws IOException {
         InlineXML xml;
-        String expected = "<a xmlns=\"b\"/>";
-        byte[] expectedBytes = Util.getBytes(expected);
+        final String expected = "<a xmlns=\"b\"/>";
+        final byte[] expectedBytes = Util.getBytes(expected);
 
         // not canonicalizable because namespace uri is relative. so:
         // quotes around attribute values should be changed to double-quotes,

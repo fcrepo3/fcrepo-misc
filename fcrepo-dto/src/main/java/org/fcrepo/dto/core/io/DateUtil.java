@@ -48,7 +48,7 @@ public final class DateUtil {
         for (final String format: ALLOWED_DATE_FORMATS) {
             try {
                 return LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern(format));
-            } catch (final DateTimeParseException e) {}
+            } catch (final DateTimeParseException e) { /* try next format */ }
         }
         return null;
     }

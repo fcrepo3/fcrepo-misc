@@ -4,10 +4,12 @@ package org.fcrepo.dto.core.io;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import javax.annotation.PreDestroy;
 import java.io.FileInputStream;
+import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +26,7 @@ public class DefaultContentResolver implements ContentResolver {
 
     private static final int HTTP = 2;
 
-    private final HttpClient defaultHttpClient = new DefaultHttpClient();
+    private final CloseableHttpClient defaultHttpClient = HttpClientBuilder.create().build();
 
     private HttpClient httpClient;
 
@@ -43,7 +45,11 @@ public class DefaultContentResolver implements ContentResolver {
      */
     public void setHttpClient(final HttpClient httpClient) {
         if (httpClient != defaultHttpClient && this.httpClient == defaultHttpClient) {
-            defaultHttpClient.getConnectionManager().shutdown();
+            try {
+                defaultHttpClient.close();
+            } catch (final IOException e) {
+                throw new IOError(e);
+            }
         }
         this.httpClient = httpClient;
     }
@@ -52,7 +58,11 @@ public class DefaultContentResolver implements ContentResolver {
     @PreDestroy
     public void close() {
         if (this.httpClient == defaultHttpClient) {
-            defaultHttpClient.getConnectionManager().shutdown();
+            try {
+                defaultHttpClient.close();
+            } catch (final IOException e) {
+                throw new IOError(e);
+            }
         }
     }
 

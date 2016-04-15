@@ -220,7 +220,9 @@ public class FedoraObject extends FedoraDTO {
 
 		private static final long serialVersionUID = 1L;
 
-		@Override
+		public DSMap() {}
+
+        @Override
         public Datastream put(final String id, final Datastream datastream) {
             if (id == null) throw new NullPointerException();
             if (!datastream.id().equals(id)) {

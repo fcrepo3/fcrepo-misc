@@ -1,6 +1,6 @@
 package org.fcrepo.dto.core;
 
-import java.io.UnsupportedEncodingException;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /** Package-private utility methods. */
 final class Util {
@@ -10,29 +10,17 @@ final class Util {
     static String normalize(String string) {
         if (string != null) {
             string = string.trim();
-            if (string.length() == 0) {
-                string = null;
-            }
+            if (string.isEmpty()) return null;
         }
         return string;
     }
 
     static byte[] getBytes(final String string) {
-        if (string == null) return null;
-        try {
-            return string.getBytes("UTF-8");
-        } catch (final UnsupportedEncodingException wontHappen) {
-            throw new RuntimeException(wontHappen);
-        }
+        return string == null ? null : string.getBytes(UTF_8);
     }
 
     static String getString(final byte[] bytes) {
-        if (bytes == null) return null;
-        try {
-            return new String(bytes, "UTF-8");
-        } catch (final UnsupportedEncodingException wontHappen) {
-            throw new RuntimeException(wontHappen);
-        }
+        return bytes == null ? null : new String(bytes, UTF_8);
     }
 
 }

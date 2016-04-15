@@ -23,13 +23,14 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import static org.fcrepo.dto.foxml.Constants.CREATED;
+import static org.fcrepo.dto.foxml.Constants.INTERNALREF_SCHEME;
+import static org.fcrepo.dto.foxml.Constants.INTERNALREF_TYPE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -164,15 +165,8 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         final String type = readAttribute(Constants.TYPE);
         final URI ref = parseURI(readAttribute(Constants.REF), "contentLocation ref");
         if (ref != null) {
-            if (Constants.INTERNALREF_TYPE.equals(type)) {
-                try {
-                    dsv.contentLocation(new URI(Constants.INTERNALREF_SCHEME + ":" + ref));
-                } catch (final URISyntaxException e) {
-                    logger.warn("Ignoring malformed contentLocation " + "internal ref: " + ref);
-                }
-            } else {
-                dsv.contentLocation(ref);
-            }
+            if (INTERNALREF_TYPE.equals(type)) dsv.contentLocation(URI.create(INTERNALREF_SCHEME + ":" + ref));
+            else dsv.contentLocation(ref);
         }
     }
 
@@ -288,12 +282,7 @@ public class FOXMLReader extends ContentHandlingDTOReader {
 
     private static URI parseURI(final String value, final String kind) {
         if (value == null) return null;
-        try {
-            return new URI(value);
-        } catch (final URISyntaxException e) {
-            logger.warn("Ignoring malformed " + kind + " value:");
-            return null;
-        }
+        return URI.create(value);
     }
 
     private static Set<URI> parseAltIds(final String value) {

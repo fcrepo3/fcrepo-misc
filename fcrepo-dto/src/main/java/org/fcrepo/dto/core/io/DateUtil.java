@@ -1,10 +1,8 @@
 package org.fcrepo.dto.core.io;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
  * Date-related utility methods.
@@ -14,11 +12,13 @@ public final class DateUtil {
     private DateUtil() { }
 
     /**
-     * The preferred date format, output by {@link #toString(java.util.Date)}
+     * The preferred date format, output by {@link #toString(java.time.LocalDateTime)}
      * and checked first for parsing via {@link #toDate(String)}.
      */
     public static final String PREFERRED_DATE_FORMAT =
             "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+    public static final DateTimeFormatter PREFERRED_DATE_FORMATTER = DateTimeFormatter.ofPattern(PREFERRED_DATE_FORMAT);
 
     /**
      * Acceptable date formats for parsing via {@link #toDate(String)}.
@@ -34,27 +34,21 @@ public final class DateUtil {
     };
 
     /**
-     * Gets a UTC <code>Date</code> from a UTC ISO-8601 <code>String</code>.
+     * Gets a UTC <code>LocalDate</code> from a UTC ISO-8601 <code>String</code>.
      * <p>
-     * The string should be in one of the {@link #ALLOWED_DATE_FORMATS},
-     * ideally {@link #PREFERRED_DATE_FORMAT} (e.g.
+     * The string should be in one of the {@link #ALLOWED_DATE_FORMATS}, ideally {@link #PREFERRED_DATE_FORMAT} (e.g.
      * <code>2011-01-16T08:27:01.002Z</code>).
      *
      * @param dateString the string to parse.
-     * @return the date if parsing was successful, or <code>null</code> if
-     *         if dateString was given as null or parsing was unsuccessful
-     *         for any other reason.
+     * @return the date if parsing was successful, or <code>null</code> if if dateString was given as null or parsing
+     *         was unsuccessful for any other reason.
      */
-    public static Date toDate(String dateString) {
+    public static LocalDateTime toDate(final String dateString) {
         if (dateString == null) return null;
-        SimpleDateFormat dateFormat = new SimpleDateFormat();
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        for (String format: ALLOWED_DATE_FORMATS) {
-            dateFormat.applyPattern(format);
+        for (final String format: ALLOWED_DATE_FORMATS) {
             try {
-                return dateFormat.parse(dateString);
-            } catch (ParseException e) {
-            }
+                return LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern(format));
+            } catch (final DateTimeParseException e) {}
         }
         return null;
     }
@@ -68,11 +62,9 @@ public final class DateUtil {
      * @param date the date.
      * @return the string, or <code>null</code> if the date was given as null.
      */
-    public static String toString(Date date) {
+    public static String toString(final LocalDateTime date) {
         if (date == null) return null;
-        DateFormat dateFormat = new SimpleDateFormat(PREFERRED_DATE_FORMAT);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return dateFormat.format(date);
+        return PREFERRED_DATE_FORMATTER.format(date);
     }
 
 }

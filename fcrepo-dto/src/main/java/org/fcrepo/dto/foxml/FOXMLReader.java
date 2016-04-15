@@ -21,13 +21,17 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
+import static org.fcrepo.dto.foxml.Constants.CREATED;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -130,7 +134,7 @@ public class FOXMLReader extends ContentHandlingDTOReader {
     private void readDatastreamVersion(final Datastream ds) throws IOException, XMLStreamException {
         final String id = readAttribute(Constants.ID);
         if (id != null) {
-            final Date created = parseDate(readAttribute(Constants.CREATED), "datastream created");
+            final LocalDateTime created = parseDate(readAttribute(CREATED), "datastream created");
             final DatastreamVersion dsv = new DatastreamVersion(id, created);
             ds.versions().add(dsv);
             dsv.altIds().addAll(parseAltIds(readAttribute(Constants.ALT_IDS)));
@@ -227,9 +231,9 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         return null;
     }
 
-    private static Date parseDate(final String value, final String kind) {
+    private static LocalDateTime parseDate(final String value, final String kind) {
         if (value == null) return null;
-        final Date date = DateUtil.toDate(value);
+        final LocalDateTime date = DateUtil.toDate(value);
         if (date == null) {
             logger.warn("Ignoring malformed " + kind + " date value: " + value);
         }

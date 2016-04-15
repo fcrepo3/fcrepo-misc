@@ -1,7 +1,7 @@
 package org.fcrepo.dto.core;
 
 import java.net.URI;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -17,7 +17,7 @@ public class DatastreamVersion extends FedoraDTO {
     private final SortedSet<URI> altIds = new TreeSet<>();
 
     private final String id;
-    private final Date createdDate;
+    private final LocalDateTime createdDate;
 
     private String label;
     private String mimeType;
@@ -35,12 +35,12 @@ public class DatastreamVersion extends FedoraDTO {
      *        (possibly null, immutable).
      * @throws NullPointerException if id is given as <code>null</code>.
      */
-    public DatastreamVersion(String id, Date createdDate) {
+    public DatastreamVersion(final String id, final LocalDateTime createdDate) {
         this.id = Util.normalize(id);
         if (this.id == null) {
             throw new NullPointerException();
         }
-        this.createdDate = Util.copy(createdDate);
+        this.createdDate = createdDate;
     }
 
     /**
@@ -49,8 +49,7 @@ public class DatastreamVersion extends FedoraDTO {
      * @return a deep copy.
      */
     public DatastreamVersion copy() {
-        DatastreamVersion copy = new DatastreamVersion(id,
-                                                       Util.copy(createdDate))
+        final DatastreamVersion copy = new DatastreamVersion(id, createdDate)
                 .label(label)
                 .mimeType(mimeType)
                 .formatURI(formatURI)
@@ -72,9 +71,8 @@ public class DatastreamVersion extends FedoraDTO {
      * @return a deep copy.
      * @throws NullPointerException if id is given as <code>null</code>.
      */
-    public DatastreamVersion copy(String id, Date createdDate) {
-        DatastreamVersion copy = new DatastreamVersion(id,
-                                                       Util.copy(createdDate))
+    public DatastreamVersion copy(final String id, final LocalDateTime createdDate) {
+        final DatastreamVersion copy = new DatastreamVersion(id, createdDate)
                 .label(label)
                 .mimeType(mimeType)
                 .formatURI(formatURI)
@@ -110,7 +108,7 @@ public class DatastreamVersion extends FedoraDTO {
      * @param label the new value, which will be string-normalized.
      * @return this instance.
      */
-    public DatastreamVersion label(String label) {
+    public DatastreamVersion label(final String label) {
         this.label = Util.normalize(label);
         return this;
     }
@@ -120,8 +118,8 @@ public class DatastreamVersion extends FedoraDTO {
      *
      * @return the value, possibly <code>null</code>.
      */
-    public Date createdDate() {
-        return Util.copy(createdDate);
+    public LocalDateTime createdDate() {
+        return createdDate;
     }
 
     /**
@@ -139,7 +137,7 @@ public class DatastreamVersion extends FedoraDTO {
      * @param mimeType the new value, which will be string-normalized.
      * @return this instance.
      */
-    public DatastreamVersion mimeType(String mimeType) {
+    public DatastreamVersion mimeType(final String mimeType) {
         this.mimeType = Util.normalize(mimeType);
         return this;
     }
@@ -169,7 +167,7 @@ public class DatastreamVersion extends FedoraDTO {
      * @param formatURI the new value, possibly <code>null</code>.
      * @return this instance.
      */
-    public DatastreamVersion formatURI(URI formatURI) {
+    public DatastreamVersion formatURI(final URI formatURI) {
         this.formatURI = formatURI;
         return this;
     }
@@ -189,7 +187,7 @@ public class DatastreamVersion extends FedoraDTO {
      * @param contentDigest the new value, possibly <code>null</code>.
      * @return this instance.
      */
-    public DatastreamVersion contentDigest(ContentDigest contentDigest) {
+    public DatastreamVersion contentDigest(final ContentDigest contentDigest) {
         this.contentDigest = contentDigest;
         return this;
     }
@@ -209,7 +207,7 @@ public class DatastreamVersion extends FedoraDTO {
      * @param size the new value, 0, positive, negative, or <code>null</code>.
      * @return this instance.
      */
-    public DatastreamVersion size(Long size) {
+    public DatastreamVersion size(final Long size) {
         this.size = size;
         return this;
     }
@@ -229,7 +227,7 @@ public class DatastreamVersion extends FedoraDTO {
      * @param inlineXML the new value, possibly <code>null</code>.
      * @return this instance.
      */
-    public DatastreamVersion inlineXML(InlineXML inlineXML) {
+    public DatastreamVersion inlineXML(final InlineXML inlineXML) {
         this.inlineXML = inlineXML;
         return this;
     }
@@ -249,7 +247,7 @@ public class DatastreamVersion extends FedoraDTO {
      * @param contentLocation the new value, possibly <code>null</code>.
      * @return this instance.
      */
-    public DatastreamVersion contentLocation(URI contentLocation) {
+    public DatastreamVersion contentLocation(final URI contentLocation) {
         this.contentLocation = contentLocation;
         return this;
     }

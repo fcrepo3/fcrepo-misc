@@ -1,9 +1,14 @@
 package org.fcrepo.dto.foxml;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.fcrepo.dto.foxml.Constants.BASE64_LINE_LENGTH;
+import static org.fcrepo.dto.foxml.Constants.LINE_FEED;
+import static org.fcrepo.dto.foxml.Constants.binaryContent;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,18 +44,18 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
     private FedoraObject obj;
     private OutputStream sink;
     private XMLStreamWriter w;
-    
+
     public FOXMLWriter() {
     }
 
     public void setManagedDatastreamsToEmbed(
-            Set<String> managedDatastreamsToEmbed) {
+            final Set<String> managedDatastreamsToEmbed) {
         this.managedDatastreamsToEmbed = managedDatastreamsToEmbed;
     }
 
     @Override
     public DTOWriter getInstance() {
-        FOXMLWriter writer = new FOXMLWriter();
+        final FOXMLWriter writer = new FOXMLWriter();
         if (contentResolver != defaultContentResolver) {
             writer.setContentResolver(contentResolver);
         }
@@ -60,15 +65,15 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
     }
 
     @Override
-    public void writeObject(FedoraObject obj, OutputStream sink)
+    public void writeObject(final FedoraObject obj, final OutputStream sink)
             throws IOException {
         this.obj = obj;
         this.sink = sink;
-        XMLOutputFactory factory = XMLOutputFactory.newInstance();
+        final XMLOutputFactory factory = XMLOutputFactory.newInstance();
         try {
             w = factory.createXMLStreamWriter(sink, Constants.CHAR_ENCODING);
             writeObject();
-        } catch (XMLStreamException e) {
+        } catch (final XMLStreamException e) {
             throw new IOException(e);
         } finally {
             XMLUtil.closeQuietly(w);
@@ -81,18 +86,18 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
 
         w.writeStartElement(Constants.digitalObject);
         w.writeDefaultNamespace(Constants.xmlns);
-        
+
         w.writeAttribute(Constants.VERSION, Constants.FOXML_VERSION);
         writeAttribute(Constants.PID, obj.pid());
 
         writeObjectProperties(obj);
-        for (String id: obj.datastreams().keySet()) {
+        for (final String id: obj.datastreams().keySet()) {
             writeDatastream(obj.datastreams().get(id));
         }
         w.writeEndDocument();
     }
 
-    private void writeObjectProperties(FedoraObject obj)
+    private void writeObjectProperties(final FedoraObject obj)
             throws XMLStreamException {
         if (obj.state() != null || obj.label() != null
                 || obj.ownerId() != null || obj.createdDate() != null
@@ -107,20 +112,20 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
         }
     }
 
-    private void writeDatastream(Datastream ds)
+    private void writeDatastream(final Datastream ds)
             throws IOException, XMLStreamException {
         w.writeStartElement(Constants.datastream);
         writeAttribute(Constants.ID, ds.id());
         writeAttribute(Constants.STATE, ds.state());
         writeAttribute(Constants.CONTROL_GROUP, ds.controlGroup());
         writeAttribute(Constants.VERSIONABLE, ds.versionable());
-        for (DatastreamVersion dsv: ds.versions()) {
+        for (final DatastreamVersion dsv: ds.versions()) {
             writeDatastreamVersion(ds, dsv);
         }
         w.writeEndElement();
     }
 
-    private void writeDatastreamVersion(Datastream ds, DatastreamVersion dsv)
+    private void writeDatastreamVersion(final Datastream ds, final DatastreamVersion dsv)
             throws IOException, XMLStreamException {
         w.writeStartElement(Constants.datastreamVersion);
         writeAttribute(Constants.ID, dsv.id());
@@ -142,7 +147,7 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
         w.writeEndElement();
     }
 
-    private void writeContentLocation(URI ref) throws XMLStreamException {
+    private void writeContentLocation(final URI ref) throws XMLStreamException {
         if (ref != null) {
             w.writeStartElement(Constants.contentLocation);
             if (ref.getScheme().equals(Constants.INTERNALREF_SCHEME)) {
@@ -156,24 +161,21 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
         }
     }
 
-    private void writeBinaryContent(URI ref)
-            throws IOException, XMLStreamException {
-        if (ref != null) {
-            w.writeStartElement(Constants.binaryContent);
-            w.writeCharacters(Constants.LINE_FEED);
+    private void writeBinaryContent(final URI ref) throws IOException, XMLStreamException {
+        if (ref != null) try (Base64OutputStream out =
+                        new Base64OutputStream(sink, true, BASE64_LINE_LENGTH, LINE_FEED.getBytes(UTF_8))) {
+            w.writeStartElement(binaryContent);
+            w.writeCharacters(LINE_FEED);
             w.flush();
-            Base64OutputStream out = new Base64OutputStream(sink,
-                    true, Constants.BASE64_LINE_LENGTH,
-                    Constants.LINE_FEED.getBytes(Constants.CHAR_ENCODING));
             contentResolver.resolveContent(baseURI, ref, out);
             out.flush();
             w.writeEndElement();
         }
     }
 
-    private void writeXMLContent(DatastreamVersion dsv)
+    private void writeXMLContent(final DatastreamVersion dsv)
             throws IOException, XMLStreamException {
-        InlineXML inlineXML = dsv.inlineXML();
+        final InlineXML inlineXML = dsv.inlineXML();
         if (inlineXML != null) {
             w.writeStartElement(Constants.xmlContent);
             w.writeCharacters(Constants.LINE_FEED);
@@ -183,7 +185,7 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
         }
     }
 
-    private void writeContentDigest(ContentDigest contentDigest)
+    private void writeContentDigest(final ContentDigest contentDigest)
             throws XMLStreamException {
         if (contentDigest != null) {
             w.writeStartElement(Constants.contentDigest);
@@ -193,11 +195,11 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
         }
     }
 
-    private void writeAttribute(String name, Object[] values)
+    private void writeAttribute(final String name, final Object[] values)
             throws XMLStreamException {
         if (values != null && values.length > 0) {
-            StringBuilder b = new StringBuilder();
-            for (Object value: values) {
+            final StringBuilder b = new StringBuilder();
+            for (final Object value: values) {
                 if (b.length() > 0) {
                     b.append(" ");
                 }
@@ -207,49 +209,49 @@ public class FOXMLWriter extends ContentResolvingDTOWriter {
         }
     }
 
-    private void writeAttribute(String name, Date value)
+    private void writeAttribute(final String name, final LocalDateTime value)
             throws XMLStreamException {
         if (value != null) {
             writeAttribute(name, DateUtil.toString(value));
         }
     }
 
-    private void writeAttribute(String name, State value)
+    private void writeAttribute(final String name, final State value)
             throws XMLStreamException {
         if (value != null) {
             writeAttribute(name, value.shortName());
         }
     }
 
-    private void writeAttribute(String name, ControlGroup value)
+    private void writeAttribute(final String name, final ControlGroup value)
             throws XMLStreamException {
         if (value != null) {
             writeAttribute(name, value.shortName());
         }
     }
 
-    private void writeAttribute(String name, Object value)
+    private void writeAttribute(final String name, final Object value)
             throws XMLStreamException {
         if (value != null) {
             w.writeAttribute(name, value.toString());
         }
     }
 
-    private void writeProperty(String name, State value)
+    private void writeProperty(final String name, final State value)
             throws XMLStreamException {
         if (value != null) {
             writeProperty(name, value.longName());
         }
     }
 
-    private void writeProperty(String name, Date value)
+    private void writeProperty(final String name, final LocalDateTime value)
             throws XMLStreamException {
         if (value != null) {
             writeProperty(name, DateUtil.toString(value));
         }
     }
 
-    private void writeProperty(String name, String value)
+    private void writeProperty(final String name, final String value)
             throws XMLStreamException {
         if (value != null) {
             w.writeStartElement(Constants.property);

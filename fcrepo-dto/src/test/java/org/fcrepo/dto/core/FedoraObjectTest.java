@@ -6,7 +6,7 @@ import org.fcrepo.dto.core.State;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Unit tests for <code>FedoraObject</code>.
@@ -15,42 +15,43 @@ public class FedoraObjectTest extends FedoraDTOTest {
 
     @Override
     Object[] getEqualInstances() {
+        final LocalDateTime now = LocalDateTime.now();
         return new Object[] {
-                new FedoraObject().createdDate(new Date(0)),
-                new FedoraObject().createdDate(new Date(0)),
-                new FedoraObject().lastModifiedDate(new Date(1)),
-                new FedoraObject().lastModifiedDate(new Date(1))
+                new FedoraObject().createdDate(now),
+                new FedoraObject().createdDate(now),
+                new FedoraObject().lastModifiedDate(now.plusDays(1)),
+                new FedoraObject().lastModifiedDate(now.plusDays(1))
         };
     }
 
     @Override
     Object[] getNonEqualInstances() {
+        final LocalDateTime now = LocalDateTime.now();
         return new Object[] {
                 new FedoraObject(),
-                new FedoraObject().createdDate(new Date(0)),
-                new FedoraObject().createdDate(new Date(0)),
-                new FedoraObject().createdDate(new Date(1)),
-                new FedoraObject().lastModifiedDate(new Date(0)),
-                new FedoraObject().lastModifiedDate(new Date(1))
+                new FedoraObject().createdDate(now),
+                new FedoraObject().createdDate(now),
+                new FedoraObject().createdDate(now.plusDays(1)),
+                new FedoraObject().lastModifiedDate(now),
+                new FedoraObject().lastModifiedDate(now.plusDays(1))
         };
     }
 
     @Test
     public void copy() {
-        FedoraObject o1 = new FedoraObject()
-                .createdDate(new Date(0))
-                .lastModifiedDate(new Date(0))
+        final LocalDateTime now = LocalDateTime.now();
+        final FedoraObject o1 = new FedoraObject()
+                .createdDate(now)
+                .lastModifiedDate(now)
                 .putDatastream(new Datastream("a"));
         FedoraObject o2 = o1.copy();
         Assert.assertEquals(o1, o2);
         Assert.assertNotSame(o1, o2);
-        o1.createdDate(new Date(1));
-        System.out.println(o1.createdDate().getTime());
-        System.out.println(o2.createdDate().getTime());
+        o1.createdDate(now.plusDays(1));
         Assert.assertFalse(o1.equals(o2));
         o2 = o1.copy();
         Assert.assertEquals(o1, o2);
-        o1.lastModifiedDate(new Date(1));
+        o1.lastModifiedDate(now.plusDays(1));
         Assert.assertFalse(o1.equals(o2));
         o2 = o1.copy();
         Assert.assertEquals(o1, o2);
@@ -79,7 +80,7 @@ public class FedoraObjectTest extends FedoraDTOTest {
 
     @Test
     public void stateField() {
-        FedoraObject o = new FedoraObject();
+        final FedoraObject o = new FedoraObject();
         Assert.assertNull(o.state());
         o.state(State.ACTIVE);
         Assert.assertEquals(State.ACTIVE, o.state());
@@ -97,10 +98,10 @@ public class FedoraObjectTest extends FedoraDTOTest {
 
     @Test
     public void putDatastream() {
-        FedoraObject o = new FedoraObject();
+        final FedoraObject o = new FedoraObject();
         // starts empty
         Assert.assertEquals(0, o.datastreams().keySet().size());
-        Datastream ds = new Datastream("a");
+        final Datastream ds = new Datastream("a");
         o.putDatastream(ds);
         // now has one datastream
         Assert.assertEquals(1, o.datastreams().keySet().size());
@@ -115,8 +116,8 @@ public class FedoraObjectTest extends FedoraDTOTest {
 
     @Test
     public void putDatastreamViaMap() {
-        FedoraObject o = new FedoraObject();
-        Datastream ds = new Datastream("a");
+        final FedoraObject o = new FedoraObject();
+        final Datastream ds = new Datastream("a");
         o.datastreams().put(ds.id(), ds);
         // now has one datastream
         Assert.assertEquals(1, o.datastreams().keySet().size());
@@ -136,17 +137,17 @@ public class FedoraObjectTest extends FedoraDTOTest {
 
     @Test (expected=IllegalArgumentException.class)
     public void putDatastreamViaMapWrongId() {
-        FedoraObject o = new FedoraObject();
-        Datastream ds = new Datastream("a");
+        final FedoraObject o = new FedoraObject();
+        final Datastream ds = new Datastream("a");
         o.datastreams().put("b", ds);
     }
 
     @Test
     public void datastreamOrdering() {
-        FedoraObject o = new FedoraObject();
-        Datastream ds1 = new Datastream("a");
-        Datastream ds2 = new Datastream("b");
-        Datastream ds3 = new Datastream("c");
+        final FedoraObject o = new FedoraObject();
+        final Datastream ds1 = new Datastream("a");
+        final Datastream ds2 = new Datastream("b");
+        final Datastream ds3 = new Datastream("c");
         o.putDatastream(ds3);
         o.putDatastream(ds1);
         o.putDatastream(ds2);

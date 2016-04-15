@@ -1,6 +1,6 @@
 package org.fcrepo.dto.core;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -19,8 +19,8 @@ public class FedoraObject extends FedoraDTO {
     private State state;
     private String label;
     private String ownerId;
-    private Date createdDate;
-    private Date lastModifiedDate;
+    private LocalDateTime createdDate;
+    private LocalDateTime lastModifiedDate;
 
     /**
      * Creates an instance.
@@ -34,14 +34,14 @@ public class FedoraObject extends FedoraDTO {
      * @return a deep copy.
      */
     public FedoraObject copy() {
-        FedoraObject copy = new FedoraObject()
+        final FedoraObject copy = new FedoraObject()
                 .pid(pid)
                 .state(state)
                 .label(label)
                 .ownerId(ownerId)
-                .createdDate(Util.copy(createdDate))
-                .lastModifiedDate(Util.copy(lastModifiedDate));
-        for (Datastream ds: datastreams.values()) {
+                .createdDate(createdDate)
+                .lastModifiedDate(lastModifiedDate);
+        for (final Datastream ds: datastreams.values()) {
             copy.putDatastream(ds.copy());
         }
         return copy;
@@ -62,7 +62,7 @@ public class FedoraObject extends FedoraDTO {
      * @param pid the new value, which will be string-normalized.
      * @return this instance.
      */
-    public FedoraObject pid(String pid) {
+    public FedoraObject pid(final String pid) {
         this.pid = Util.normalize(pid);
         return this;
     }
@@ -82,7 +82,7 @@ public class FedoraObject extends FedoraDTO {
      * @param state the new value, possibly <code>null</code>.
      * @return this instance.
      */
-    public FedoraObject state(State state) {
+    public FedoraObject state(final State state) {
         this.state = state;
         return this;
     }
@@ -102,7 +102,7 @@ public class FedoraObject extends FedoraDTO {
      * @param label the new value, which will be string-normalized.
      * @return this instance.
      */
-    public FedoraObject label(String label) {
+    public FedoraObject label(final String label) {
         this.label = Util.normalize(label);
         return this;
     }
@@ -122,7 +122,7 @@ public class FedoraObject extends FedoraDTO {
      * @param ownerId the new value, which will be string-normalized.
      * @return this instance.
      */
-    public FedoraObject ownerId(String ownerId) {
+    public FedoraObject ownerId(final String ownerId) {
         this.ownerId = Util.normalize(ownerId);
         return this;
     }
@@ -132,8 +132,8 @@ public class FedoraObject extends FedoraDTO {
      *
      * @return the value, possibly <code>null</code>.
      */
-    public Date createdDate() {
-        return Util.copy(createdDate);
+    public LocalDateTime createdDate() {
+        return createdDate;
     }
 
     /**
@@ -142,8 +142,8 @@ public class FedoraObject extends FedoraDTO {
      * @param createdDate the value, possibly <code>null</code>.
      * @return this instance.
      */
-    public FedoraObject createdDate(Date createdDate) {
-        this.createdDate = Util.copy(createdDate);
+    public FedoraObject createdDate(final LocalDateTime createdDate) {
+        this.createdDate = createdDate;
         return this;
     }
 
@@ -152,8 +152,8 @@ public class FedoraObject extends FedoraDTO {
      *
      * @return the value, possibly <code>null</code>.
      */
-    public Date lastModifiedDate() {
-        return Util.copy(lastModifiedDate);
+    public LocalDateTime lastModifiedDate() {
+        return lastModifiedDate;
     }
 
     /**
@@ -162,8 +162,8 @@ public class FedoraObject extends FedoraDTO {
      * @param lastModifiedDate the value, possibly <code>null</code>.
      * @return this instance.
      */
-    public FedoraObject lastModifiedDate(Date lastModifiedDate) {
-        this.lastModifiedDate = Util.copy(lastModifiedDate);
+    public FedoraObject lastModifiedDate(final LocalDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
         return this;
     }
 
@@ -179,7 +179,7 @@ public class FedoraObject extends FedoraDTO {
      * @return this instance.
      * @throws NullPointerException if the value is null.
      */
-    public FedoraObject putDatastream(Datastream ds) {
+    public FedoraObject putDatastream(final Datastream ds) {
         datastreams.put(ds.id(), ds);
         return this;
     }
@@ -221,14 +221,14 @@ public class FedoraObject extends FedoraDTO {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-        public Datastream put(String id, Datastream datastream) {
+        public Datastream put(final String id, final Datastream datastream) {
             if (id == null) throw new NullPointerException();
             if (!datastream.id().equals(id)) {
                 throw new IllegalArgumentException();
             }
             return super.put(id, datastream);
         }
-        
+
     }
 
 }

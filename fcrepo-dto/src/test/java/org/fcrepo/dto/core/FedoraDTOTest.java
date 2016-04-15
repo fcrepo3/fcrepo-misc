@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Common tests and convenience methods for Fedora DTO classes.
@@ -15,7 +15,7 @@ public abstract class FedoraDTOTest {
 
     @Test
     public void equality() {
-        Object[] instances = getEqualInstances();
+        final Object[] instances = getEqualInstances();
         for (int i = 0; i < instances.length; i+=2) {
             Assert.assertEquals(instances[i], instances[i+1]);
             Assert.assertEquals(instances[i+1].hashCode(),
@@ -25,7 +25,7 @@ public abstract class FedoraDTOTest {
 
     @Test
     public void inequality() {
-        Object[] instances = getNonEqualInstances();
+        final Object[] instances = getNonEqualInstances();
         Assert.assertFalse(instances[0].equals(""));
         for (int i = 0; i < instances.length; i+=2) {
             Assert.assertFalse(instances[i].equals(instances[i+1]));
@@ -46,10 +46,10 @@ public abstract class FedoraDTOTest {
      */
     abstract Object[] getNonEqualInstances();
 
-    static void checkStringField(Object o, String field) {
+    static void checkStringField(final Object o, final String field) {
         try {
-            Method setter = o.getClass().getMethod(field, String.class);
-            Method getter = o.getClass().getMethod(field);
+            final Method setter = o.getClass().getMethod(field, String.class);
+            final Method getter = o.getClass().getMethod(field);
             // value starts null
             Assert.assertNull(getter.invoke(o));
             // set value, get same value
@@ -70,51 +70,41 @@ public abstract class FedoraDTOTest {
             // set null, get null
             setter.invoke(o, new Object[] { null });
             Assert.assertNull(getter.invoke(o));
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
 
-    static void checkDateField(Object o, String field) {
-        Date date;
+    static void checkDateField(final Object o, final String field) {
         try {
-            Method setter = o.getClass().getMethod(field, Date.class);
-            Method getter = o.getClass().getMethod(field);
+            final Method setter = o.getClass().getMethod(field, LocalDateTime.class);
+            final Method getter = o.getClass().getMethod(field);
             // value starts null
             Assert.assertNull(getter.invoke(o));
             // set value, get same value
-            date = new Date(0);
+            final LocalDateTime date = LocalDateTime.now();
             setter.invoke(o, date);
             Assert.assertEquals(date, getter.invoke(o));
-            // changing the original date object after setting it
-            // doesn't affect the value stored
-            date.setTime(1);
-            Assert.assertEquals(0, ((Date) getter.invoke(o)).getTime());
-            // changing the retrieved date object after getting it
-            // shouldn't affect the value stored
-            date = (Date) getter.invoke(o);
-            date.setTime(1);
-            Assert.assertEquals(0, ((Date) getter.invoke(o)).getTime());
             // set null, get null
             setter.invoke(o, new Object[] { null });
             Assert.assertNull(getter.invoke(o));
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
 
-    static void checkURIField(Object o, String field) {
+    static void checkURIField(final Object o, final String field) {
         try {
-            Method setter = o.getClass().getMethod(field, URI.class);
-            Method getter = o.getClass().getMethod(field);
+            final Method setter = o.getClass().getMethod(field, URI.class);
+            final Method getter = o.getClass().getMethod(field);
             // value starts null
             Assert.assertNull(getter.invoke(o));
             // set value, get same value
@@ -123,11 +113,11 @@ public abstract class FedoraDTOTest {
             // set null, get null
             setter.invoke(o, new Object[] { null });
             Assert.assertNull(getter.invoke(o));
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }

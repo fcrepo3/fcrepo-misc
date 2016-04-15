@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Unit tests for <code>DatastreamVersion</code>.
@@ -17,7 +17,7 @@ public class DatastreamVersionTest extends FedoraDTOTest {
 
     @Override
     Object[] getEqualInstances() {
-        Date now = new Date();
+        final LocalDateTime now = LocalDateTime.now();
         try {
             return new Object[] {
                     new DatastreamVersion("a", null),
@@ -29,7 +29,7 @@ public class DatastreamVersionTest extends FedoraDTOTest {
                     new DatastreamVersion("a", null)
                             .inlineXML(new InlineXML("<doc></doc>"))
             };
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -44,9 +44,9 @@ public class DatastreamVersionTest extends FedoraDTOTest {
 
     @Test
     public void copy() {
-        DatastreamVersion o1 = new DatastreamVersion("a", null);
+        final DatastreamVersion o1 = new DatastreamVersion("a", null);
         o1.altIds().add(URI.create("urn:a"));
-        DatastreamVersion o2 = o1.copy();
+        final DatastreamVersion o2 = o1.copy();
         Assert.assertEquals(o1, o2);
         Assert.assertNotSame(o1, o2);
         o1.altIds().add(URI.create("urn:b"));
@@ -55,8 +55,8 @@ public class DatastreamVersionTest extends FedoraDTOTest {
 
     @Test
     public void copyWithArg() {
-        DatastreamVersion o1 = new DatastreamVersion("a", null);
-        DatastreamVersion o2 = o1.copy("b", null);
+        final DatastreamVersion o1 = new DatastreamVersion("a", null);
+        final DatastreamVersion o2 = o1.copy("b", null);
         Assert.assertFalse(o1.equals(o2));
     }
 
@@ -72,16 +72,19 @@ public class DatastreamVersionTest extends FedoraDTOTest {
     }
 
     @Test (expected=NullPointerException.class)
+    @SuppressWarnings("unused")
     public void idFieldNull() {
         new DatastreamVersion(null, null);
     }
 
     @Test (expected=NullPointerException.class)
+    @SuppressWarnings("unused")
     public void idFieldEmpty() {
         new DatastreamVersion("", null);
     }
 
     @Test (expected=NullPointerException.class)
+    @SuppressWarnings("unused")
     public void idFieldSpace() {
         new DatastreamVersion(" ", null);
     }
@@ -89,20 +92,10 @@ public class DatastreamVersionTest extends FedoraDTOTest {
     @Test
     public void createdDateField() {
         DatastreamVersion dsv;
-        Date date;
         // set value, get same value
-        date = new Date(0);
+        final LocalDateTime date = LocalDateTime.now();
         dsv = new DatastreamVersion("a", date);
         Assert.assertEquals(date, dsv.createdDate());
-        // changing the original date object after setting it
-        // doesn't affect the value stored
-        date.setTime(1);
-        Assert.assertEquals(0, dsv.createdDate().getTime());
-        // changing the retrieved date object after getting it
-        // shouldn't affect the value stored
-        date = dsv.createdDate();
-        date.setTime(1);
-        Assert.assertEquals(0, dsv.createdDate().getTime());
         // set null, get null
         dsv = new DatastreamVersion("a", null);
         Assert.assertNull(dsv.createdDate());
@@ -120,7 +113,7 @@ public class DatastreamVersionTest extends FedoraDTOTest {
 
     @Test
     public void altIdsField() {
-        DatastreamVersion dsv = new DatastreamVersion("a", null);
+        final DatastreamVersion dsv = new DatastreamVersion("a", null);
         // value starts empty
         Assert.assertEquals(0, dsv.altIds().size());
         // add three values, get in sorted order
@@ -139,11 +132,11 @@ public class DatastreamVersionTest extends FedoraDTOTest {
 
     @Test
     public void contentDigestField() {
-        DatastreamVersion dsv = new DatastreamVersion("a", null);
+        final DatastreamVersion dsv = new DatastreamVersion("a", null);
         // value starts null
         Assert.assertNull(dsv.contentDigest());
         // set value, get same value
-        ContentDigest d = new ContentDigest().type("a").hexValue("a");
+        final ContentDigest d = new ContentDigest().type("a").hexValue("a");
         dsv.contentDigest(d);
         Assert.assertEquals(d, dsv.contentDigest());
         // set null, get null
@@ -153,7 +146,7 @@ public class DatastreamVersionTest extends FedoraDTOTest {
 
     @Test
     public void sizeField() {
-        DatastreamVersion dsv = new DatastreamVersion("a", null);
+        final DatastreamVersion dsv = new DatastreamVersion("a", null);
         // value starts null
         Assert.assertNull(dsv.size());
         // set value, get same value
@@ -170,11 +163,11 @@ public class DatastreamVersionTest extends FedoraDTOTest {
 
     @Test
     public void inlineXMLField() throws IOException {
-        DatastreamVersion dsv = new DatastreamVersion("a", null);
+        final DatastreamVersion dsv = new DatastreamVersion("a", null);
         // value starts null
         Assert.assertNull(dsv.inlineXML());
         // set value, get same value
-        InlineXML xml = new InlineXML("<doc/>");
+        final InlineXML xml = new InlineXML("<doc/>");
         dsv.inlineXML(xml);
         Assert.assertEquals(xml, dsv.inlineXML());
         // set null, get null

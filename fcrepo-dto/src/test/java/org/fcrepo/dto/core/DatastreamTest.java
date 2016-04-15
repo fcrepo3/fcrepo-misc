@@ -8,7 +8,7 @@ import org.fcrepo.dto.core.State;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.SortedSet;
 
 /**
@@ -31,15 +31,16 @@ public class DatastreamTest extends FedoraDTOTest {
     @Test
     public void copy() {
         final Datastream o1 = new Datastream("a");
-        o1.addVersion(new Date(0));
+        final LocalDateTime now = LocalDateTime.now();
+        o1.addVersion(now);
         Datastream o2 = o1.copy();
         Assert.assertEquals(o1, o2);
         Assert.assertNotSame(o1, o2);
-        o1.addVersion(new Date(1));
+        o1.addVersion(now.plusDays(1));
         Assert.assertFalse(o1.equals(o2));
         o2 = o1.copy();
         Assert.assertEquals(o1, o2);
-        o1.versions().add(new DatastreamVersion("a.2", new Date(2)));
+        o1.versions().add(new DatastreamVersion("a.2", now.plusDays(2)));
         Assert.assertFalse(o1.equals(o2));
     }
 
@@ -138,8 +139,9 @@ public class DatastreamTest extends FedoraDTOTest {
         final Datastream ds = new Datastream("a");
         final DatastreamVersion dsv1 = new DatastreamVersion("a.1", null);
         final DatastreamVersion dsv2 = new DatastreamVersion("a.2", null);
-        final DatastreamVersion dsv3 = new DatastreamVersion("a.3", new Date(2));
-        final DatastreamVersion dsv4 = new DatastreamVersion("a.4", new Date(1));
+        final LocalDateTime now = LocalDateTime.now();
+        final DatastreamVersion dsv3 = new DatastreamVersion("a.3", now.plusDays(1));
+        final DatastreamVersion dsv4 = new DatastreamVersion("a.4", now);
         ds.versions().add(dsv4);
         ds.versions().add(dsv2);
         ds.versions().add(dsv1);

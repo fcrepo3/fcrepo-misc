@@ -8,7 +8,7 @@ import java.io.IOException;
 
 /**
  * The inline XML content of a {@link DatastreamVersion}.
- * <p>
+ *
  * <h2>Canonicalization and Normalization</h2>
  * The XML given at construction time must be well-formed.  It will be
  * automatically <i>canonicalized</i> according to
@@ -50,7 +50,7 @@ public class InlineXML extends FedoraDTO {
      * @throws IOException if the value is not a well-formed, standalone
      *         XML document.
      */
-    public InlineXML(String value) throws IOException {
+    public InlineXML(final String value) throws IOException {
         this(Util.getBytes(value));
     }
 
@@ -61,14 +61,14 @@ public class InlineXML extends FedoraDTO {
      * @throws IOException if the value is not a well-formed, standalone
      *         XML document or cannot be decoded as UTF-8.
      */
-    public InlineXML(byte[] bytes) throws IOException {
+    public InlineXML(final byte[] bytes) throws IOException {
         // verify it's well-formed first; canonicalization doesn't
-        byte[] normalized = XMLUtil.prettyPrint(bytes, true);
+        final byte[] normalized = XMLUtil.prettyPrint(bytes, true);
         // try to canonicalize, otherwise, use normalized form
         try {
             this.bytes = XMLUtil.canonicalize(bytes);
             this.canonical = true;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.debug("Unable to canonicalize (c14n11); using non-standard "
                     + "normalization instead", e);
             this.bytes = normalized;

@@ -15,6 +15,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.time.LocalDateTime.parse;
+import static org.fcrepo.dto.core.io.DateUtil.PREFERRED_DATE_FORMATTER;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,7 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public class FOXMLReadWriteTest {
@@ -84,13 +87,13 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void objCreatedDate() {
-        obj.createdDate(new Date(0));
+        obj.createdDate(LocalDateTime.parse("1970-01-01T00:00:00.000Z", PREFERRED_DATE_FORMATTER));
         writeThenReadCheck("objCreatedDate");
     }
 
     @Test
     public void objLastModifiedDate() {
-        obj.lastModifiedDate(new Date(0));
+        obj.lastModifiedDate(LocalDateTime.parse("1970-01-01T00:00:00.000Z", PREFERRED_DATE_FORMATTER));
         writeThenReadCheck("objLastModifiedDate");
     }
 
@@ -176,7 +179,7 @@ public class FOXMLReadWriteTest {
     @Test
     public void dsvCreatedDate() {
         final Datastream ds = new Datastream("ds");
-        ds.addVersion(new Date(0));
+        ds.addVersion(parse("1970-01-01T00:00:00.000Z", PREFERRED_DATE_FORMATTER));
         obj.putDatastream(ds);
         writeThenReadCheck("dsvCreatedDate");
     }
@@ -335,8 +338,10 @@ public class FOXMLReadWriteTest {
         final Datastream ds = new Datastream("ds");
         final DatastreamVersion dsv1 = new DatastreamVersion("ds.1", null);
         final DatastreamVersion dsv2 = new DatastreamVersion("ds.2", null);
-        final DatastreamVersion dsv3 = new DatastreamVersion("ds.3", new Date(2));
-        final DatastreamVersion dsv4 = new DatastreamVersion("ds.4", new Date(1));
+        final DatastreamVersion dsv3 =
+                        new DatastreamVersion("ds.3", parse("1970-01-01T00:00:00.002Z", PREFERRED_DATE_FORMATTER));
+        final DatastreamVersion dsv4 =
+                        new DatastreamVersion("ds.4", parse("1970-01-01T00:00:00.001Z", PREFERRED_DATE_FORMATTER));
         ds.versions().add(dsv4);
         ds.versions().add(dsv2);
         ds.versions().add(dsv1);
@@ -368,12 +373,11 @@ public class FOXMLReadWriteTest {
                     Assert.fail("Test resource not found: " + filename);
                 }
             } else {
-                final InputStream expectedStream = getClass().getClassLoader()
-                        .getResourceAsStream(filename);
-                final byte[] expectedBytes = XMLUtil.prettyPrint(
-                        IOUtils.toByteArray(expectedStream), false);
-                final String expectedXML = new String(expectedBytes, "UTF-8");
-                Assert.assertEquals(expectedXML, actualXML);
+                try (final InputStream expectedStream = getClass().getClassLoader().getResourceAsStream(filename)) {
+                    final byte[] expectedBytes = XMLUtil.prettyPrint(IOUtils.toByteArray(expectedStream), false);
+                    final String expectedXML = new String(expectedBytes, "UTF-8");
+                    Assert.assertEquals(expectedXML, actualXML);
+                }
             }
         } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -383,9 +387,7 @@ public class FOXMLReadWriteTest {
     private FedoraObject readCheck(final String testName, final FOXMLReader reader,
                                    final boolean check) {
         final String filename = "foxml/" + testName + ".xml";
-        try {
-            final InputStream in = getClass().getClassLoader()
-                    .getResourceAsStream(filename);
+        try (final InputStream in = getClass().getClassLoader().getResourceAsStream(filename)) {
             final FedoraObject result = reader.readObject(in);
             if (check) {
                 Assert.assertEquals(obj, result);

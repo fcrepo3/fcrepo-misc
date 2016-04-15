@@ -2,8 +2,8 @@
 package org.fcrepo.dto.core;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -52,6 +52,7 @@ public class Datastream extends FedoraDTO {
     /**
      * Creates an instance based on the current state of this one, but with a different id.
      *
+     * @param id the datastream id
      * @return a deep copy.
      */
     public Datastream copy(final String id) {
@@ -154,7 +155,7 @@ public class Datastream extends FedoraDTO {
      * @param createdDate the created date to use for the new datastream version, possibly <code>null</code>.
      * @return the new version.
      */
-    public DatastreamVersion addVersion(final Date createdDate) {
+    public DatastreamVersion addVersion(final LocalDateTime createdDate) {
         int n = versions.size();
         while (hasVersion(id + "." + n)) {
             n++;
@@ -182,8 +183,8 @@ public class Datastream extends FedoraDTO {
 
         @Override
         public int compare(final DatastreamVersion a, final DatastreamVersion b) {
-            final Date aDate = a.createdDate();
-            final Date bDate = b.createdDate();
+            final LocalDateTime aDate = a.createdDate();
+            final LocalDateTime bDate = b.createdDate();
             if (aDate == null) {
                 if (bDate == null) { return b.id().compareTo(a.id()); }
                 return -1;

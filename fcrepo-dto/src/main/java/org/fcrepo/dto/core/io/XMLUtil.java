@@ -17,6 +17,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -93,34 +96,34 @@ public final class XMLUtil implements XMLStreamConstants {
      *        output. If false, the output will not be directly embeddable in
      *        other XML documents.
      * @return the pretty-printed XML as a UTF-8 encoded byte array.
-     * @throws IOException
+     * @throws IOException on any XML error
      */
-    public static byte[] prettyPrint(byte[] inBytes,
-                                     boolean omitXMLDeclaration)
+    public static byte[] prettyPrint(final byte[] inBytes,
+                                     final boolean omitXMLDeclaration)
             throws IOException {
-        ByteArrayOutputStream sink = new ByteArrayOutputStream();
+        final ByteArrayOutputStream sink = new ByteArrayOutputStream();
         prettyPrint(new ByteArrayInputStream(inBytes),
                 new OutputStreamWriter(sink, "UTF-8"), omitXMLDeclaration);
         return sink.toByteArray();
     }
 
-    private static void prettyPrint(InputStream source,
-                                    Writer sink,
-                                    boolean omitXMLDeclaration)
+    private static void prettyPrint(final InputStream source,
+                                    final Writer sink,
+                                    final boolean omitXMLDeclaration)
             throws IOException {
         try {
-            TransformerFactory tFactory = TransformerFactory.newInstance();
+            final TransformerFactory tFactory = TransformerFactory.newInstance();
             String xsl = prettyXSL;
             if (omitXMLDeclaration) xsl = prettyXSLLite;
-            Transformer t = tFactory.newTransformer(
+            final Transformer t = tFactory.newTransformer(
                     new StreamSource(new StringReader(xsl)));
             t.setErrorListener(new DebugLoggingErrorListener());
-            StringWriter preTrimmed = new StringWriter();
+            final StringWriter preTrimmed = new StringWriter();
             t.transform(new StreamSource(source), new StreamResult(preTrimmed));
             preTrimmed.flush();
             sink.write(preTrimmed.toString().trim());
             sink.flush();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IOException(e);
         } finally {
             IOUtils.closeQuietly(source);
@@ -140,12 +143,12 @@ public final class XMLUtil implements XMLStreamConstants {
      * @return the canonicalized XML as a UTF-8 encoded byte array.
      * @throws IOException if the input cannot be canonicalized for any reason.
      */
-    public static byte[] canonicalize(byte[] inBytes) throws IOException {
+    public static byte[] canonicalize(final byte[] inBytes) throws IOException {
         try {
-            Canonicalizer c = Canonicalizer.getInstance(
+            final Canonicalizer c = Canonicalizer.getInstance(
                     Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
             return c.canonicalize(inBytes);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IOException(e);
         }
     }
@@ -156,11 +159,11 @@ public final class XMLUtil implements XMLStreamConstants {
      *
      * @param writer the writer to close.
      */
-    public static void closeQuietly(XMLStreamWriter writer) {
+    public static void closeQuietly(final XMLStreamWriter writer) {
         if (writer != null) {
             try {
                 writer.close();
-            } catch (XMLStreamException e) {
+            } catch (final XMLStreamException e) {
                 logger.warn("Error while closing", e);
             }
         }
@@ -172,11 +175,11 @@ public final class XMLUtil implements XMLStreamConstants {
      *
      * @param reader the writer to close.
      */
-    public static void closeQuietly(XMLStreamReader reader) {
+    public static void closeQuietly(final XMLStreamReader reader) {
         if (reader != null) {
             try {
                 reader.close();
-            } catch (XMLStreamException e) {
+            } catch (final XMLStreamException e) {
                 logger.warn("Error while closing", e);
             }
         }
@@ -199,10 +202,10 @@ public final class XMLUtil implements XMLStreamConstants {
      *        It will be left open when finished.
      * @throws XMLStreamException if anything goes wrong during the copy.
      */
-    public static void copy(XMLStreamReader source, OutputStream sink)
+    public static void copy(final XMLStreamReader source, final OutputStream sink)
             throws XMLStreamException {
-        XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        XMLStreamWriter writer = factory.createXMLStreamWriter(sink, "UTF-8");
+        final XMLOutputFactory factory = XMLOutputFactory.newInstance();
+        final XMLStreamWriter writer = factory.createXMLStreamWriter(sink, "UTF-8");
         copy(source, writer);
         writer.flush();
     }
@@ -223,7 +226,7 @@ public final class XMLUtil implements XMLStreamConstants {
      * @param sink the writer to copy to. It will be left open when finished.
      * @throws XMLStreamException if anything goes wrong during the copy.
      */
-    public static void copy(XMLStreamReader source, XMLStreamWriter sink)
+    public static void copy(final XMLStreamReader source, final XMLStreamWriter sink)
             throws XMLStreamException {
         sink.setNamespaceContext(source.getNamespaceContext());
         // TODO: Make a version of XMLStreamUtils that automatically writes
@@ -235,20 +238,23 @@ public final class XMLUtil implements XMLStreamConstants {
 
     private static class DebugLoggingErrorListener implements ErrorListener {
 
+        private static final Logger listenerlogger = getLogger(DebugLoggingErrorListener.class);
+
+        public DebugLoggingErrorListener() {}
+
         @Override
-        public void warning(TransformerException e) {
-            logger.debug("Warning during transformation", e);
+        public void warning(final TransformerException e) {
+            listenerlogger.debug("Warning during transformation", e);
         }
 
         @Override
-        public void error(TransformerException e) {
-            logger.debug("Error during transformation", e);
+        public void error(final TransformerException e) {
+            listenerlogger.debug("Error during transformation", e);
         }
 
         @Override
-        public void fatalError(TransformerException e)
-                throws TransformerException {
-            logger.debug("Fatal error during transformation");
+        public void fatalError(final TransformerException e) {
+            listenerlogger.debug("Fatal error during transformation");
         }
     }
 

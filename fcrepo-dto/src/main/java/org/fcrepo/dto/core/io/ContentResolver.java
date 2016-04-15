@@ -37,6 +37,7 @@ public interface ContentResolver {
      *        absolute URIs, possibly <code>null</code>.
      * @param ref the absolute or relative URI of the content to resolve,
      *        never <code>null</code>.
+     * @param sink where to put the bytes
      * @throws IllegalArgumentException if base is specified but not absolute.
      * @throws NullPointerException if ref is given as null.
      * @throws IOException if the content was not found or any other error

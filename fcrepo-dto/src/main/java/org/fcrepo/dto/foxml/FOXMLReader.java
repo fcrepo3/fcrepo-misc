@@ -117,7 +117,7 @@ public class FOXMLReader extends ContentHandlingDTOReader {
     private void readDatastream() throws IOException, XMLStreamException {
         final String id = readAttribute(Constants.ID);
         if (id != null) {
-            final Datastream ds = new Datastream(id);
+            final Datastream ds = new Datastream(obj.pid(), id);
             obj.putDatastream(ds);
             ds.state(parseState(readAttribute(Constants.STATE), "datastream"));
             ds.controlGroup(parseControlGroup(readAttribute(Constants.CONTROL_GROUP)));

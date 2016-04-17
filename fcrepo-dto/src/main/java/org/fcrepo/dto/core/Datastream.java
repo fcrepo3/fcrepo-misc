@@ -12,6 +12,16 @@ import java.util.TreeSet;
  */
 public class Datastream extends FedoraDTO {
 
+    private final String objectId;
+
+    private final String id;
+
+    private State state;
+
+    private ControlGroup controlGroup;
+
+    private Boolean versionable;
+
     private final SortedSet<DatastreamVersion> versions = new TreeSet<>((a, b) -> {
         final LocalDateTime aDate = a.createdDate();
         final LocalDateTime bDate = b.createdDate();
@@ -22,13 +32,19 @@ public class Datastream extends FedoraDTO {
                                         ? 1 : bDate.compareTo(aDate);
     });
 
-    private final String id;
-
-    private State state;
-
-    private ControlGroup controlGroup;
-
-    private Boolean versionable;
+    /**
+     * Creates an empty instance with an id. An id is the only required field of a datastream. It is immutable and must
+     * be provided at construction time.
+     *
+     * @param id the id of the datastream (not null, immutable), which will be string-normalized.
+     * @param objectId the pid of the object to which this datastream belongs
+     * @throws NullPointerException if the normalized id is <code>null</code>.
+     */
+    public Datastream(final String objectId, final String id) {
+        this.id = Util.normalize(id);
+        this.objectId = Util.normalize(objectId);
+        if (this.id == null) { throw new NullPointerException(); }
+    }
 
     /**
      * Creates an empty instance with an id. An id is the only required field of a datastream. It is immutable and must
@@ -38,8 +54,7 @@ public class Datastream extends FedoraDTO {
      * @throws NullPointerException if the normalized id is <code>null</code>.
      */
     public Datastream(final String id) {
-        this.id = Util.normalize(id);
-        if (this.id == null) { throw new NullPointerException(); }
+        this(null, id);
     }
 
     /**
@@ -67,6 +82,15 @@ public class Datastream extends FedoraDTO {
             copy.versions().add(version.copy());
         }
         return copy;
+    }
+
+    /**
+     * Gets the object pid.
+     *
+     * @return the pid of the object to which this datastream belongs.
+     */
+    public String pid() {
+        return objectId;
     }
 
     /**

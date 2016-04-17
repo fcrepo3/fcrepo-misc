@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import static java.time.LocalDateTime.parse;
 import static org.fcrepo.dto.core.io.DateUtil.PREFERRED_DATE_FORMATTER;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -99,8 +100,11 @@ public class FOXMLReadWriteTest {
 
     @Test
     public void dsId() {
-        obj.putDatastream(new Datastream("dsId"));
+        obj.pid("demo:999").putDatastream(new Datastream("dsId"));
         writeThenReadCheck("dsId");
+        final FedoraObject retrievedObject = readCheck("dsId", new FOXMLReader(), true);
+        final Datastream retrievedDatastream = retrievedObject.datastreams().get("dsId");
+        assertEquals("demo:999", retrievedDatastream.pid());
     }
 
     @Test

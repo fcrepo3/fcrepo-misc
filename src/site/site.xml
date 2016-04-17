@@ -31,7 +31,7 @@
     </menu>
     <menu name="Modules" ref="modules"/>
     <menu name="Links" inherit="bottom">
-      <item name="GitHub Repository" href="https://github.com/cwilper/fcrepo-misc"/>
+      <item name="GitHub Repository" href="http://github.com/fcrepo3/fcrepo-misc"/>
       <item name="Fedora Commons" href="http://fedora-commons.org/"/>
       <item name="DuraSpace" href="http://duraspace.org/"/>
     </menu>

@@ -1,9 +1,10 @@
 package org.fcrepo.dto.core;
 
 import org.fcrepo.dto.core.InlineXML;
-import org.fcrepo.dto.core.Util;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.apache.commons.codec.binary.StringUtils.getBytesUtf8;
 
 import java.io.IOException;
 
@@ -57,14 +58,14 @@ public class InlineXMLTest extends FedoraDTOTest {
     @Test (expected=IOException.class)
     @SuppressWarnings("unused")
     public void malformedBytes() throws IOException {
-        new InlineXML(Util.getBytes("<nonClosingElement>"));
+        new InlineXML(getBytesUtf8("<nonClosingElement>"));
     }
 
     @Test
     public void canonicalize() throws IOException {
         InlineXML xml;
         final String expected = "<a b=\"c\"></a>";
-        final byte[] expectedBytes = Util.getBytes(expected);
+        final byte[] expectedBytes = getBytesUtf8(expected);
 
         // empty elements should be expanded
         xml = new InlineXML("<a b=\"c\"/>");
@@ -83,7 +84,7 @@ public class InlineXMLTest extends FedoraDTOTest {
     public void normalize() throws IOException {
         InlineXML xml;
         final String expected = "<a xmlns=\"b\"/>";
-        final byte[] expectedBytes = Util.getBytes(expected);
+        final byte[] expectedBytes = getBytesUtf8(expected);
 
         // not canonicalizable because namespace uri is relative. so:
         // quotes around attribute values should be changed to double-quotes,

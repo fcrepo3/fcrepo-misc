@@ -2,7 +2,6 @@
 package org.fcrepo.dto.foxml;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
-import org.apache.commons.io.IOUtils;
 import org.fcrepo.dto.core.ContentDigest;
 import org.fcrepo.dto.core.ControlGroup;
 import org.fcrepo.dto.core.Datastream;
@@ -77,7 +76,7 @@ public class FOXMLReader extends ContentHandlingDTOReader {
             throw new IOException(e);
         } finally {
             XMLUtil.closeQuietly(r);
-            IOUtils.closeQuietly(source);
+            source.close();
         }
     }
 
@@ -140,7 +139,7 @@ public class FOXMLReader extends ContentHandlingDTOReader {
             dsv.altIds().addAll(parseAltIds(readAttribute(Constants.ALT_IDS)));
             dsv.label(readAttribute(Constants.LABEL));
             dsv.mimeType(readAttribute(Constants.MIMETYPE));
-            dsv.formatURI(parseURI(readAttribute(Constants.FORMAT_URI), "datastream format uri"));
+            dsv.formatURI(parseURI(readAttribute(Constants.FORMAT_URI)));
             dsv.size(parseLong(readAttribute(Constants.SIZE), "datastream size"));
             if (r.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 if (r.getLocalName().equals(Constants.contentDigest)) {
@@ -163,7 +162,7 @@ public class FOXMLReader extends ContentHandlingDTOReader {
 
     private void readContentLocation(final DatastreamVersion dsv) {
         final String type = readAttribute(Constants.TYPE);
-        final URI ref = parseURI(readAttribute(Constants.REF), "contentLocation ref");
+        final URI ref = parseURI(readAttribute(Constants.REF));
         if (ref != null) {
             if (INTERNALREF_TYPE.equals(type)) dsv.contentLocation(URI.create(INTERNALREF_SCHEME + ":" + ref));
             else dsv.contentLocation(ref);
@@ -185,10 +184,8 @@ public class FOXMLReader extends ContentHandlingDTOReader {
     }
 
     private void readXMLContent(final DatastreamVersion dsv) throws IOException, XMLStreamException {
-        while (r.next() != XMLStreamConstants.START_ELEMENT) {
-            if (r.getEventType() == XMLStreamConstants.END_ELEMENT) { return; // xmlContent element is empty
-            }
-        }
+        while (r.next() != XMLStreamConstants.START_ELEMENT)
+            if (r.getEventType() == XMLStreamConstants.END_ELEMENT)  return; // xmlContent element is empty
         final ByteArrayOutputStream sink = new ByteArrayOutputStream();
         try {
             XMLUtil.copy(r, sink);
@@ -237,10 +234,10 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         if (value == null) return null;
         try {
             return State.forShortName(value);
-        } catch (final IllegalArgumentException e) {
+        } catch (@SuppressWarnings("unused") final IllegalArgumentException e) {
             try {
                 return State.forLongName(value);
-            } catch (final IllegalArgumentException e2) {
+            } catch (@SuppressWarnings("unused") final IllegalArgumentException e2) {
                 logger.warn("Ignoring unrecognized " + kind + " state value: " + value);
                 return null;
             }
@@ -251,7 +248,7 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         if (value == null) return null;
         try {
             return ControlGroup.forShortName(value);
-        } catch (final IllegalArgumentException e) {
+        } catch (@SuppressWarnings("unused") final IllegalArgumentException e) {
             logger.warn("Ignoring unrecognized datastream control group value: " + value);
             return null;
         }
@@ -274,13 +271,13 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         if (value == null) return null;
         try {
             return Long.parseLong(value);
-        } catch (final NumberFormatException e) {
+        } catch (@SuppressWarnings("unused") final NumberFormatException e) {
             logger.warn("Ignoring invalid " + kind + " value: " + value);
             return null;
         }
     }
 
-    private static URI parseURI(final String value, final String kind) {
+    private static URI parseURI(final String value) {
         if (value == null) return null;
         return URI.create(value);
     }
@@ -289,7 +286,7 @@ public class FOXMLReader extends ContentHandlingDTOReader {
         final Set<URI> set = new HashSet<>();
         if (value != null) {
             for (final String uriString : value.split("\\s+")) {
-                final URI uri = parseURI(uriString, "datastream altId");
+                final URI uri = parseURI(uriString);
                 if (uri != null) set.add(uri);
             }
         }

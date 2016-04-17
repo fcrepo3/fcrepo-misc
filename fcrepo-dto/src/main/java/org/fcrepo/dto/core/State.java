@@ -24,7 +24,7 @@ public enum State {
      *
      * @param longName the full name sometimes used in serializations.
      */
-    State(String longName) {
+    State(final String longName) {
         this.shortName = longName.substring(0, 1);
         this.longName = longName;
     }
@@ -55,8 +55,8 @@ public enum State {
      * @return the corresponding instance.
      * @throws IllegalArgumentException if the short name is not recognized.
      */
-    public static State forShortName(String shortName) {
-        for (State s: State.values()) {
+    public static State forShortName(final String shortName) {
+        for (final State s: State.values()) {
             if (s.shortName().equals(shortName)) return s;
         }
         throw new IllegalArgumentException();
@@ -69,8 +69,8 @@ public enum State {
      * @return the corresponding instance.
      * @throws IllegalArgumentException if the long name is not recognized.
      */
-    public static State forLongName(String longName) {
-        for (State s: State.values()) {
+    public static State forLongName(final String longName) {
+        for (final State s: State.values()) {
             if (s.longName().equals(longName)) return s;
         }
         throw new IllegalArgumentException();

@@ -1,8 +1,11 @@
 package org.fcrepo.dto.core;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.fcrepo.dto.core.io.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.commons.codec.binary.StringUtils.getBytesUtf8;
 
 import java.io.IOException;
 
@@ -51,7 +54,7 @@ public class InlineXML extends FedoraDTO {
      *         XML document.
      */
     public InlineXML(final String value) throws IOException {
-        this(Util.getBytes(value));
+        this(getBytesUtf8(value));
     }
 
     /**
@@ -73,7 +76,8 @@ public class InlineXML extends FedoraDTO {
                     + "normalization instead", e);
             this.bytes = normalized;
         }
-        this.value = Util.getString(this.bytes);
+        final byte[] bytes1 = this.bytes;
+        this.value = StringUtils.newStringUtf8(bytes1);
     }
 
     /**

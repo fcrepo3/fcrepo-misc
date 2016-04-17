@@ -1,6 +1,7 @@
 package org.fcrepo.dto.core;
 
 import org.fcrepo.dto.core.InlineXML;
+import org.fcrepo.dto.core.io.XMLUtil.XMLException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,54 +16,46 @@ public class InlineXMLTest extends FedoraDTOTest {
 
     @Override
     public Object[] getEqualInstances() {
-        try {
-            return new Object[] {
-                    new InlineXML("<doc/>"),
-                    new InlineXML("<doc></doc>")
-            };
-        } catch (final IOException wontHappen) {
-            throw new RuntimeException(wontHappen);
-        }
+        return new Object[] {
+                new InlineXML("<doc/>"),
+                new InlineXML("<doc></doc>")
+        };
     }
 
     @Override
     public Object[] getNonEqualInstances() {
-        try {
-            return new Object[] {
-                    new InlineXML("<doc/>"),
-                    new InlineXML("<doctor/>")
-            };
-        } catch (final IOException wontHappen) {
-            throw new RuntimeException(wontHappen);
-        }
+        return new Object[] {
+                new InlineXML("<doc/>"),
+                new InlineXML("<doctor/>")
+        };
     }
 
-    @Test (expected=IOException.class)
+    @Test (expected=XMLException.class)
     @SuppressWarnings("unused")
     public void emptyString() throws IOException {
         new InlineXML("");
     }
 
-    @Test (expected=IOException.class)
+    @Test (expected=XMLException.class)
     @SuppressWarnings("unused")
     public void emptyBytes() throws IOException {
         new InlineXML(new byte[0]);
     }
 
-    @Test (expected=IOException.class)
+    @Test (expected=XMLException.class)
     @SuppressWarnings("unused")
     public void malformedString() throws IOException {
         new InlineXML("<nonClosingElement>");
     }
 
-    @Test (expected=IOException.class)
+    @Test (expected=XMLException.class)
     @SuppressWarnings("unused")
     public void malformedBytes() throws IOException {
         new InlineXML(getBytesUtf8("<nonClosingElement>"));
     }
 
     @Test
-    public void canonicalize() throws IOException {
+    public void canonicalize() {
         InlineXML xml;
         final String expected = "<a b=\"c\"></a>";
         final byte[] expectedBytes = getBytesUtf8(expected);
@@ -81,7 +74,7 @@ public class InlineXMLTest extends FedoraDTOTest {
     }
 
     @Test
-    public void normalize() throws IOException {
+    public void normalize() {
         InlineXML xml;
         final String expected = "<a xmlns=\"b\"/>";
         final byte[] expectedBytes = getBytesUtf8(expected);

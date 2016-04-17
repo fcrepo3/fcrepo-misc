@@ -18,11 +18,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -96,21 +96,19 @@ public final class XMLUtil implements XMLStreamConstants {
      *        output. If false, the output will not be directly embeddable in
      *        other XML documents.
      * @return the pretty-printed XML as a UTF-8 encoded byte array.
-     * @throws IOException on any XML error
+     * @throws XMLException on any XML error
      */
     public static byte[] prettyPrint(final byte[] inBytes,
-                                     final boolean omitXMLDeclaration)
-            throws IOException {
+                                     final boolean omitXMLDeclaration) {
         final ByteArrayOutputStream sink = new ByteArrayOutputStream();
         prettyPrint(new ByteArrayInputStream(inBytes),
-                new OutputStreamWriter(sink, "UTF-8"), omitXMLDeclaration);
+                new OutputStreamWriter(sink, UTF_8), omitXMLDeclaration);
         return sink.toByteArray();
     }
 
     private static void prettyPrint(final InputStream source,
                                     final Writer sink,
-                                    final boolean omitXMLDeclaration)
-            throws IOException {
+                                    final boolean omitXMLDeclaration) {
         try {
             final TransformerFactory tFactory = TransformerFactory.newInstance();
             String xsl = prettyXSL;
@@ -124,7 +122,7 @@ public final class XMLUtil implements XMLStreamConstants {
             sink.write(preTrimmed.toString().trim());
             sink.flush();
         } catch (final Exception e) {
-            throw new IOException(e);
+            throw new XMLException(e);
         } finally {
             IOUtils.closeQuietly(source);
         }
@@ -141,15 +139,14 @@ public final class XMLUtil implements XMLStreamConstants {
      *
      * @param inBytes the xml to be canonicalized.
      * @return the canonicalized XML as a UTF-8 encoded byte array.
-     * @throws IOException if the input cannot be canonicalized for any reason.
      */
-    public static byte[] canonicalize(final byte[] inBytes) throws IOException {
+    public static byte[] canonicalize(final byte[] inBytes) {
         try {
             final Canonicalizer c = Canonicalizer.getInstance(
                     Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
             return c.canonicalize(inBytes);
         } catch (final Exception e) {
-            throw new IOException(e);
+            throw new XMLException(e);
         }
     }
 
@@ -234,6 +231,16 @@ public final class XMLUtil implements XMLStreamConstants {
         // (new) context yet, but are in the reader's context (currently set
         // above, but it should probably not be...)
         XMLStreamUtils.copy(new BalancedXMLStreamReader(source), sink);
+    }
+
+    public static class XMLException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public XMLException(final Exception e) {
+            super(e);
+        }
+
     }
 
     private static class DebugLoggingErrorListener implements ErrorListener {

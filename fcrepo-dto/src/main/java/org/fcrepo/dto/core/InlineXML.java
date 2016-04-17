@@ -2,12 +2,11 @@ package org.fcrepo.dto.core;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.fcrepo.dto.core.io.XMLUtil;
+import org.fcrepo.dto.core.io.XMLUtil.XMLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.commons.codec.binary.StringUtils.getBytesUtf8;
-
-import java.io.IOException;
 
 /**
  * The inline XML content of a {@link DatastreamVersion}.
@@ -50,10 +49,8 @@ public class InlineXML extends FedoraDTO {
      * Creates an instance from a string.
      *
      * @param value a well-formed, standalone XML document.
-     * @throws IOException if the value is not a well-formed, standalone
-     *         XML document.
      */
-    public InlineXML(final String value) throws IOException {
+    public InlineXML(final String value) {
         this(getBytesUtf8(value));
     }
 
@@ -61,17 +58,17 @@ public class InlineXML extends FedoraDTO {
      * Creates an instance from a UTF-8 encoded byte array.
      *
      * @param bytes a well-formed, standalone XML document.
-     * @throws IOException if the value is not a well-formed, standalone
+     * @throws XMLException if the value is not a well-formed, standalone
      *         XML document or cannot be decoded as UTF-8.
      */
-    public InlineXML(final byte[] bytes) throws IOException {
+    public InlineXML(final byte[] bytes) {
         // verify it's well-formed first; canonicalization doesn't
         final byte[] normalized = XMLUtil.prettyPrint(bytes, true);
         // try to canonicalize, otherwise, use normalized form
         try {
             this.bytes = XMLUtil.canonicalize(bytes);
             this.canonical = true;
-        } catch (final IOException e) {
+        } catch (final XMLException e) {
             logger.debug("Unable to canonicalize (c14n11); using non-standard "
                     + "normalization instead", e);
             this.bytes = normalized;

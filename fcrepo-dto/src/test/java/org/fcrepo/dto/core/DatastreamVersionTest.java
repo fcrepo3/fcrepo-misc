@@ -6,7 +6,6 @@ import org.fcrepo.dto.core.InlineXML;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
 
@@ -18,20 +17,16 @@ public class DatastreamVersionTest extends FedoraDTOTest {
     @Override
     Object[] getEqualInstances() {
         final LocalDateTime now = LocalDateTime.now();
-        try {
-            return new Object[] {
-                    new DatastreamVersion("a", null),
-                    new DatastreamVersion("a", null),
-                    new DatastreamVersion("a", now),
-                    new DatastreamVersion("a", now),
-                    new DatastreamVersion("a", null)
-                            .inlineXML(new InlineXML("<doc/>")),
-                    new DatastreamVersion("a", null)
-                            .inlineXML(new InlineXML("<doc></doc>"))
-            };
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
+        return new Object[] {
+                new DatastreamVersion("a", null),
+                new DatastreamVersion("a", null),
+                new DatastreamVersion("a", now),
+                new DatastreamVersion("a", now),
+                new DatastreamVersion("a", null)
+                        .inlineXML(new InlineXML("<doc/>")),
+                new DatastreamVersion("a", null)
+                        .inlineXML(new InlineXML("<doc></doc>"))
+        };
     }
 
     @Override
@@ -162,7 +157,7 @@ public class DatastreamVersionTest extends FedoraDTOTest {
     }
 
     @Test
-    public void inlineXMLField() throws IOException {
+    public void inlineXMLField() {
         final DatastreamVersion dsv = new DatastreamVersion("a", null);
         // value starts null
         Assert.assertNull(dsv.inlineXML());

@@ -230,7 +230,7 @@ public class FOXMLReadWriteTest {
     }
 
     @Test
-    public void dsvInlineXML() throws IOException {
+    public void dsvInlineXML() {
         final Datastream ds = new Datastream("ds").controlGroup(
                 ControlGroup.INLINE_XML);
         ds.addVersion(null).inlineXML(new InlineXML("<doc></doc>"));
